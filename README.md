@@ -5,6 +5,10 @@
 <img alt="Screenshot" src="http://i.imgur.com/c76YyE5.png" />
 </p>
 
+<p align="center">
+  <a href="https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow"><img src="http://i.imgur.com/E8I5TfU.png" alt="Download"></a>
+</p>
+
 This workflow lets you access weather forecasts from [forecast.io][fio] and the
 [Weather Underground][wund].  There are several setup commands, accessible as
 `wset <command>`, and a single `weather` command to display current conditions
