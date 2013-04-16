@@ -105,7 +105,7 @@ def _load_settings(validate=True):
         with open(settings_file, 'rt') as sf:
             s = json.load(sf)
             if 'version' not in s:
-                s = _migrate_settings(s)
+                _migrate_settings(s)
             settings.update(s)
 
     svc = settings['service']
