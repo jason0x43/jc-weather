@@ -4,6 +4,8 @@
 '''
 Convert a weather icon set for whatever uses these standard numbers to a
 Weather Underground-compatible icon set.
+
+Additional, 'wind' is included for forecast.io.
 '''
 
 import os.path
@@ -30,6 +32,7 @@ MAPPING = {
     'snow': '14',
     'sunny': '32',
     'tstorms': '0',
+    'wind': '23',
     'nt_chanceflurries': '46',
     'nt_chancerain': '45',
     'nt_chancesleet': '46',
@@ -37,16 +40,10 @@ MAPPING = {
     'nt_chancetstorms': '47',
     'nt_clear': '31',
     'nt_cloudy': '27',
-    'nt_flurries': '13',
-    'nt_fog': '20',
-    'nt_hazy': '21',
     'nt_mostlycloudy': '27',
     'nt_mostlysunny': '33',
     'nt_partlycloudy': '29',
     'nt_partlysunny': '29',
-    'nt_rain': '12',
-    'nt_sleet': '7',
-    'nt_snow': '14',
     'nt_sunny': '31',
     'nt_tstorms': '17',
 }

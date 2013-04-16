@@ -2,36 +2,42 @@
 =========================================================
 
 <p align="center">
-<img alt="Screenshot" src="http://i.imgur.com/Qg71xWm.png" />
+<img alt="Screenshot" src="http://i.imgur.com/c76YyE5.png" />
 </p>
 
-This workflow lets you access weather forecasts from the [Weather
-Underground][wund].  There are several setup commands, accessible as `wset
-<command>`, and a single `weather` command to display current conditions and a
-4-day forecast.
+This workflow lets you access weather forecasts from [forecast.io][fio] and the
+[Weather Underground][wund].  There are several setup commands, accessible as
+`wset <command>`, and a single `weather` command to display current conditions
+and a forecast.
 
 The setup commands are:
 
+  * `days` - set the number of forecast days to show
+  * `getkey` - open the API key signup page for your current service
+  * `icons` - choose an icon set
   * `key <your key>` - set your API key (described below)
   * `location <ZIP or city>` - set your default location
-  * `icons` - choose an icon set
+  * `service` - set your preferred weather service, forecast.io or Weather
+    Underground
   * `units` - set your preferred unit system
 
 The `weather` command, with no argument, will show information for your default
 location. It can also be given a location, such as a ZIP code or city name. It
 (and the `wset location` command) uses the Weather Underground autocomplete API
-to find possible locations based on what you enter, and it just picks the first
-one.
+to find possible locations based on what you enter.
 
-The first time you try to access the weather, you'll be asked to add a Weather
-Underground API key. You can create an account and get a key from
-[wunderground.com][api]. Both the account and API access are free, so long as
-you sign up for a "developer" key. You'll also need to set a default location.
+The first time you try to access the weather, you'll be asked to add an API key
+for your current service (the default is Weather Underground). If you don't
+already have a key you can use `wset getkey` to open the API signup page for
+the weather service. API keys from both Weather Underground and forecast.io are
+free.
+
+Once you've set an API key, you'll also need to set a default location. This is done with the `wset location` command.
 
 The data for each city you query is cached for 5 minutes to keep requests down
 to a reasonable level while you're playing around with the workflow. The free
-tier of Weather Underground API access only allows 10 requests per minute, and
-it's surprisingly easy to hit that limit (you know, when you're spastically
+tier of Weather Underground API access is throttled to 10 requests per minute,
+and it's surprisingly easy to hit that limit (you know, when you're spastically
 querying city after city because using an Alfred workflow is just so cool).
 
 Installation
@@ -74,3 +80,4 @@ provides a source URL for the icon set.
 [alfred]: http://www.alfredapp.com
 [icons]: http://www.weathericonsets.com
 [wund]: http://www.weatherunderground.com
+[fio]: http://forecast.io
