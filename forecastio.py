@@ -13,6 +13,12 @@ API_TEMPLATE = 'https://api.forecast.io/forecast/{}'
 api = None
 
 
+class WeatherException(Exception):
+    def __init__(self, message, error=None):
+        super(WeatherException, self).__init__(message)
+        self.error = error
+
+
 def set_key(api_key):
     global api
     api = API_TEMPLATE.format(api_key)
@@ -36,9 +42,16 @@ def forecast(location, params=None):
     '''
     url = '{}/{}'.format(api, location)
     headers = {'Accept-Encoding': 'gzip'}
-    r = requests.get(url, params=params, headers=headers).json()
+    r = requests.get(url, params=params, headers=headers)
+
+    if r.status_code != 200:
+        raise WeatherException('Your key is invalid or forecast.io is down')
+
+    r = r.json()
     if 'error' in r:
-        raise Exception(r['error'])
+        raise WeatherException('Error getting weather: {}'.format(r['error']),
+                               r['error'])
+
     return r
 
 

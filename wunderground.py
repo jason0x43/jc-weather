@@ -9,6 +9,12 @@ API_TEMPLATE = 'http://api.wunderground.com/api/{}'
 api = None
 
 
+class WeatherException(Exception):
+    def __init__(self, message, error=None):
+        super(WeatherException, self).__init__(message)
+        self.error = error
+
+
 def set_key(key):
     global api
     api = API_TEMPLATE.format(key)
@@ -34,7 +40,8 @@ def forecast(location):
     url = '{}/conditions/forecast10day/q/{}.json'.format(api, location)
     r = requests.get(url).json()
     if 'error' in r['response']:
-        raise Exception(r['response']['error'])
+        raise WeatherException('Your key is invalid or wunderground is down',
+                               r['response']['error'])
     return r
 
 
