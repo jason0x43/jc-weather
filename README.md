@@ -19,7 +19,6 @@ The setup commands are:
   * `days` - set the number of forecast days to show
   * `getkey` - open the API key signup page for your current service
   * `icons` - choose an icon set
-  * `key <your key>` - set your API key (described below)
   * `location <ZIP or city>` - set your default location
   * `service` - set your preferred weather service, forecast.io or Weather
     Underground
@@ -30,13 +29,15 @@ location. It can also be given a location, such as a ZIP code or city name. It
 (and the `wset location` command) uses the Weather Underground autocomplete API
 to find possible locations based on what you enter.
 
-The first time you try to access the weather, you'll be asked to add an API key
-for your current service (the default is Weather Underground). If you don't
-already have a key you can use `wset getkey` to open the API signup page for
-the weather service. API keys from both Weather Underground and forecast.io are
+The first time you try to access the weather, you'll be asked to set your
+preferred service, currently either Weather Underground or Forecast.io. You'll
+also be asked to set an API key for your chosen service. If you don't already
+have a key you can use `wset getkey` to open the API signup page for the
+weather service.  API keys from both Weather Underground and forecast.io are
 free.
 
-Once you've set an API key, you'll also need to set a default location. This is done with the `wset location` command.
+Once you've set the service and API key, you'll also need to set a default
+location. This is done with the `wset location` command.
 
 The data for each city you query is cached for 5 minutes to keep requests down
 to a reasonable level while you're playing around with the workflow. The free

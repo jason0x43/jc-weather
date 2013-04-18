@@ -35,7 +35,6 @@ ts_format = '%Y-%m-%d %H:%M:%S'
 
 DEFAULT_UNITS = 'us'
 DEFAULT_ICONS = 'grzanka'
-DEFAULT_SERVICE = 'wund'
 EXAMPLE_ICON = 'tstorms'
 
 
@@ -96,7 +95,6 @@ def _load_settings(validate=True):
     settings = {
         'units': DEFAULT_UNITS,
         'icons': DEFAULT_ICONS,
-        'service': DEFAULT_SERVICE,
         'days': 3,
         'version': 2
     }
@@ -108,13 +106,10 @@ def _load_settings(validate=True):
                 _migrate_settings(s)
             settings.update(s)
 
-    svc = settings['service']
-
     if validate:
-        if 'key.{}'.format(svc) not in settings:
-            raise SetupError('Missing API key', 'You need to set an API key '
-                             'for {} with the "wset key" command'.format(
-                             SERVICES[svc]['name']))
+        if 'service' not in settings:
+            raise SetupError('You need to set your weather service',
+                             'Use the "wset service" command.')
         if 'location' not in settings:
             raise SetupError('Missing default location', 'You must specify a '
                              'default location with the "wset location" '
