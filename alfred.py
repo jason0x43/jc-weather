@@ -61,13 +61,16 @@ def to_xml(items):
     return u''.join(msg)
 
 
-def get_from_user(title, prompt, hidden=False):
+def get_from_user(title, prompt, hidden=False, value=None):
     '''
     Popup a dialog to request some piece of information.
 
     The main use for this function is to request information that you don't
     want showing up in Alfred's command history.
     '''
+    if value is None:
+        value = ''
+
     script = '''
         on run argv
           tell application "Alfred 2"
@@ -87,15 +90,15 @@ def get_from_user(title, prompt, hidden=False):
 
               if dlgHidden
                 display dialog dlgPrompt & ":" with title dlgTitle ¬
-                  default answer "" with icon alfredIcon with hidden answer
+                  default answer "{v}" with icon alfredIcon with hidden answer
               else
                 display dialog dlgPrompt & ":" with title dlgTitle ¬
-                  default answer "" with icon alfredIcon
+                  default answer "{v}" with icon alfredIcon
               end if
 
               set answer to text returned of result
           end tell
-        end run'''
+        end run'''.format(v=value)
 
     from subprocess import Popen, PIPE
     cmd = ['osascript', '-', title, prompt]

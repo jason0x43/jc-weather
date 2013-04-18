@@ -357,14 +357,6 @@ def tell_key(query):
     return items
 
 
-def do_key(key):
-    settings = _load_settings(False)
-    svc = settings['service']
-    settings['key.{}'.format(svc)] = key.strip()
-    _save_settings(settings)
-    _out('Set API key for {} to {}'.format(SERVICES[svc]['name'], key))
-
-
 def tell_days(days):
     if len(days.strip()) == 0:
         settings = _load_settings(False)
@@ -417,8 +409,20 @@ def tell_service(query):
 def do_service(svc):
     settings = _load_settings(False)
     settings['service'] = svc
+
+    key_name = 'key.{}'.format(svc)
+    key = settings.get(key_name)
+    user_key = alfred.get_from_user(
+        'Update API key', 'Enter your API key for {}'.format(
+        SERVICES[svc]['name']), value=key)
+
+    if len(user_key) != 0:
+        key = user_key
+        settings[key_name] = user_key
+
     _save_settings(settings)
-    _out('Using {} for weather data'.format(SERVICES[svc]['name']))
+    _out('Using {} for weather data with key {}'.format(SERVICES[svc]['name'],
+         key))
 
 
 def tell_units(arg):
@@ -568,4 +572,5 @@ def do(name, query=''):
 
 
 if __name__ == '__main__':
-    tell('weather')
+    from sys import argv
+    globals()[argv[1]](*argv[2:])

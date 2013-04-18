@@ -105,28 +105,6 @@
 				<string></string>
 			</dict>
 		</array>
-		<key>D92A5EF7-61A4-420A-9F55-A9AAB29CCEBE</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>DA22AB2F-5F95-4ED4-9E56-A8470B7CD070</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-			</dict>
-		</array>
-		<key>DA22AB2F-5F95-4ED4-9E56-A8470B7CD070</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-			</dict>
-		</array>
 		<key>DC617D32-E820-4B44-A64B-DAA07CF51E37</key>
 		<array>
 			<dict>
@@ -176,19 +154,35 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>escaping</key>
+				<integer>62</integer>
+				<key>script</key>
+				<string>import alfred_weather
+alfred_weather.do('location', '{query}')</string>
+				<key>type</key>
+				<integer>3</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>BDD3FAD2-F38F-4D02-94FA-C19E50918067</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>keyword</key>
-				<string>wset getkey</string>
+				<string>wset service</string>
 				<key>script</key>
 				<string>import alfred_weather
-alfred_weather.tell('key', '{query}')</string>
+alfred_weather.tell('service', '{query}')</string>
 				<key>subtext</key>
-				<string>Get an API key for a weather provider</string>
+				<string>Select your preferred weather provider; optionally specify a key</string>
 				<key>title</key>
-				<string>getkey</string>
+				<string>service</string>
 				<key>type</key>
 				<integer>3</integer>
 				<key>withspace</key>
@@ -197,22 +191,7 @@ alfred_weather.tell('key', '{query}')</string>
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
-			<string>DC617D32-E820-4B44-A64B-DAA07CF51E37</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>plusspaces</key>
-				<false/>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
-			<key>uid</key>
-			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
+			<string>0C275773-C2F3-45CA-8E57-F8698A26F241</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -229,32 +208,6 @@ alfred_weather.do('days', '{query}')</string>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>F41F0372-A249-4877-91B9-7501F58F9B18</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
-				<integer>1</integer>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>keyword</key>
-				<string>wset days</string>
-				<key>script</key>
-				<string>import alfred_weather
-alfred_weather.tell('days', '{query}')</string>
-				<key>subtext</key>
-				<string>Set the number of forecast days</string>
-				<key>title</key>
-				<string>days</string>
-				<key>type</key>
-				<integer>3</integer>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>6CBAC160-13E0-4F68-9AA8-73D018A3D6B8</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -343,25 +296,6 @@ alfred_weather.do('service', '{query}')</string>
 			<key>config</key>
 			<dict>
 				<key>argumenttype</key>
-				<integer>0</integer>
-				<key>keyword</key>
-				<string>wset key</string>
-				<key>subtext</key>
-				<string>Set the API key for your weather provider</string>
-				<key>text</key>
-				<string>key</string>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.keyword</string>
-			<key>uid</key>
-			<string>D92A5EF7-61A4-420A-9F55-A9AAB29CCEBE</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
 				<integer>2</integer>
 				<key>escaping</key>
 				<integer>63</integer>
@@ -391,22 +325,6 @@ alfred_weather.tell('icons')</string>
 				<integer>63</integer>
 				<key>script</key>
 				<string>import alfred_weather
-alfred_weather.do('key', '{query}')</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>DA22AB2F-5F95-4ED4-9E56-A8470B7CD070</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>escaping</key>
-				<integer>63</integer>
-				<key>script</key>
-				<string>import alfred_weather
 alfred_weather.do('units', '{query}')</string>
 				<key>type</key>
 				<integer>3</integer>
@@ -415,6 +333,62 @@ alfred_weather.do('units', '{query}')</string>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
 			<string>F9CE0791-C2A1-4E61-B879-54AD16FDD744</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>EF234458-4C48-4330-8AE2-D4A7BC845300</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>63</integer>
+				<key>keyword</key>
+				<string>wset days</string>
+				<key>script</key>
+				<string>import alfred_weather
+alfred_weather.tell('days', '{query}')</string>
+				<key>subtext</key>
+				<string>Set the number of forecast days</string>
+				<key>title</key>
+				<string>days</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>6CBAC160-13E0-4F68-9AA8-73D018A3D6B8</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -473,50 +447,19 @@ alfred_weather.tell('units', '{query}')</string>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>escaping</key>
-				<integer>62</integer>
-				<key>script</key>
-				<string>import alfred_weather
-alfred_weather.do('location', '{query}')</string>
-				<key>type</key>
-				<integer>3</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>BDD3FAD2-F38F-4D02-94FA-C19E50918067</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>plusspaces</key>
-				<false/>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
-			<key>uid</key>
-			<string>EF234458-4C48-4330-8AE2-D4A7BC845300</string>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
 				<integer>63</integer>
 				<key>keyword</key>
-				<string>wset service</string>
+				<string>wset getkey</string>
 				<key>script</key>
 				<string>import alfred_weather
-alfred_weather.tell('service', '{query}')</string>
+alfred_weather.tell('key', '{query}')</string>
 				<key>subtext</key>
-				<string>Select your preferred weather provider</string>
+				<string>Get an API key for a weather provider</string>
 				<key>title</key>
-				<string>service</string>
+				<string>getkey</string>
 				<key>type</key>
 				<integer>3</integer>
 				<key>withspace</key>
@@ -525,7 +468,7 @@ alfred_weather.tell('service', '{query}')</string>
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
-			<string>0C275773-C2F3-45CA-8E57-F8698A26F241</string>
+			<string>DC617D32-E820-4B44-A64B-DAA07CF51E37</string>
 		</dict>
 	</array>
 	<key>readme</key>
@@ -535,7 +478,7 @@ alfred_weather.tell('service', '{query}')</string>
 		<key>0C275773-C2F3-45CA-8E57-F8698A26F241</key>
 		<dict>
 			<key>ypos</key>
-			<real>490</real>
+			<real>370</real>
 		</dict>
 		<key>0FFDC898-D6CF-4099-BCD9-B5B9E435BA99</key>
 		<dict>
@@ -545,7 +488,7 @@ alfred_weather.tell('service', '{query}')</string>
 		<key>4E09B635-A23C-4B94-99CB-6731C9B0A6E6</key>
 		<dict>
 			<key>ypos</key>
-			<real>730</real>
+			<real>610</real>
 		</dict>
 		<key>56D645A1-ACFA-4A97-B9A4-20DDBB3C0B35</key>
 		<dict>
@@ -555,12 +498,12 @@ alfred_weather.tell('service', '{query}')</string>
 		<key>6CBAC160-13E0-4F68-9AA8-73D018A3D6B8</key>
 		<dict>
 			<key>ypos</key>
-			<real>610</real>
+			<real>490</real>
 		</dict>
 		<key>8AA393E3-0A37-4352-A575-B21BD481C799</key>
 		<dict>
 			<key>ypos</key>
-			<real>490</real>
+			<real>370</real>
 		</dict>
 		<key>BC2E4EDA-3EF7-4FF4-9708-BD60C615F674</key>
 		<dict>
@@ -580,17 +523,7 @@ alfred_weather.tell('service', '{query}')</string>
 		<key>D83AF686-44AA-46E2-B388-7C9C53F30930</key>
 		<dict>
 			<key>ypos</key>
-			<real>730</real>
-		</dict>
-		<key>D92A5EF7-61A4-420A-9F55-A9AAB29CCEBE</key>
-		<dict>
-			<key>ypos</key>
-			<real>370</real>
-		</dict>
-		<key>DA22AB2F-5F95-4ED4-9E56-A8470B7CD070</key>
-		<dict>
-			<key>ypos</key>
-			<real>370</real>
+			<real>610</real>
 		</dict>
 		<key>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</key>
 		<dict>
@@ -600,17 +533,17 @@ alfred_weather.tell('service', '{query}')</string>
 		<key>DC617D32-E820-4B44-A64B-DAA07CF51E37</key>
 		<dict>
 			<key>ypos</key>
-			<real>850</real>
+			<real>730</real>
 		</dict>
 		<key>EF234458-4C48-4330-8AE2-D4A7BC845300</key>
 		<dict>
 			<key>ypos</key>
-			<real>850</real>
+			<real>730</real>
 		</dict>
 		<key>F41F0372-A249-4877-91B9-7501F58F9B18</key>
 		<dict>
 			<key>ypos</key>
-			<real>610</real>
+			<real>490</real>
 		</dict>
 		<key>F9CE0791-C2A1-4E61-B879-54AD16FDD744</key>
 		<dict>
