@@ -2,7 +2,7 @@
 =========================================================
 
 <p align="center">
-<img alt="Screenshot" src="http://i.imgur.com/c76YyE5.png" />
+<img alt="Screenshot" src="https://dl.dropbox.com/s/ivyyc4cnbi6oz0d/jc-weather_screenshot.png" />
 </p>
 
 <p align="center">
@@ -49,7 +49,7 @@ Installation
 ------------
 
 The easiest way to install the workflow is to download the
-[prepackaged workflow][package].  Double-click on the downloaded file, or drag
+[prepackaged workflow][pkg].  Double-click on the downloaded file, or drag
 it into the Alfred Workflows window, and Alfred should install it.
 
 I'm using `weather` as the main command, which is the same as the built-in
@@ -65,7 +65,7 @@ The only requirements are:
   * Python 2.7+
   * `requests`
 
-If you have Lion or Mountain Lion, the [prepackaged workflow][package] includes
+If you have Lion or Mountain Lion, the [prepackaged workflow][pkg] includes
 everything you need.
 
 Credits
@@ -80,8 +80,8 @@ from [weathericonsets.com][icons] (I'm not up to drawing weather icons yet).
 Each set includes an `info.json` file that gives a short description and
 provides a source URL for the icon set.
 
-[api]: http://www.wunderground.com/weather/api/
-[package]: https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow
+[pkg]: https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow
+[img]: https://dl.dropbox.com/s/ivyyc4cnbi6oz0d/jc-weather_screenshot.png
 [alfred]: http://www.alfredapp.com
 [icons]: http://www.weathericonsets.com
 [wund]: http://www.weatherunderground.com
