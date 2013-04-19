@@ -14,7 +14,6 @@ import time
 import urlparse
 import wunderground
 
-
 SERVICES = {
     'wund': {
         'name': 'Weather Underground',
@@ -32,12 +31,24 @@ SERVICES = {
 
 settings_file = os.path.join(alfred.data_dir, 'settings.json')
 cache_file = os.path.join(alfred.cache_dir, 'cache.json')
-ts_format = '%Y-%m-%d %H:%M:%S'
+
+show_exceptions = False
 
 DEFAULT_UNITS = 'us'
 DEFAULT_ICONS = 'grzanka'
+DEFAULT_TIME_FMT = '%Y-%m-%d %H:%M'
 EXAMPLE_ICON = 'tstorms'
+TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
+LINE = unichr(0x2500) * 20
 
+TIME_FORMATS = (
+    DEFAULT_TIME_FMT,
+    '%A, %B %d, %Y %I:%M%p',
+    '%a, %d %b %Y %H:%M',
+    '%I:%M%p on %m/%d/%Y',
+    '%d.%m.%Y %H:%M',
+    '%d/%m/%Y %H:%M',
+)
 
 FIO_TO_WUND = {
     'clear-day': 'clear',
@@ -58,6 +69,10 @@ class SetupError(Exception):
 def _out(msg):
     '''Output a string'''
     stdout.write(msg.encode('utf-8'))
+
+
+def _clean(arg):
+    return arg.replace('&', '&amp;')
 
 
 def _migrate_settings(settings):
@@ -87,6 +102,7 @@ def _load_settings(validate=True):
     settings = {
         'units': DEFAULT_UNITS,
         'icons': DEFAULT_ICONS,
+        'time_format': DEFAULT_TIME_FMT,
         'days': 3,
         'version': 2
     }
@@ -156,7 +172,7 @@ def _load_cached_data(service, location):
         cache[service] = {'forecasts': {}}
     if location in cache[service]['forecasts']:
         last_check = cache[service]['forecasts'][location]['requested_at']
-        last_check = datetime.strptime(last_check, ts_format)
+        last_check = datetime.strptime(last_check, TIMESTAMP_FMT)
         if (datetime.now() - last_check).seconds < 300:
             data = cache[service]['forecasts'][location]['data']
     return data, cache
@@ -167,7 +183,7 @@ def _save_cached_data(service, location, data):
     if service not in cache:
         cache[service] = {'forecasts': {}}
     cache[service]['forecasts'][location] = {
-        'requested_at': datetime.now().strftime(ts_format),
+        'requested_at': datetime.now().strftime(TIMESTAMP_FMT),
         'data': data
     }
     _save_cache(cache)
@@ -199,10 +215,28 @@ def _get_wund_weather(settings, location):
         data = wunderground.forecast(location)
         cache = _save_cached_data('wund', location, data)
 
-    conditions = data['current_observation']
+    def parse_alert(alert):
+        data = {
+            'description': alert['description'],
+            'expires': datetime.fromtimestamp(int(alert['expires_epoch'])),
+        }
+
+        if 'level_meteoalarm' not in alert:
+            # only generate URIs for US alerts
+            zone = alert['ZONES'][0]
+            data['uri'] = '{}/US/{}/{}.html'.format(SERVICES['wund']['url'],
+                                                    zone['state'],
+                                                    zone['ZONE'])
+        return data
+
     weather = {'current': {}, 'forecast': [], 'info': {}}
-    weather['info']['time'] = \
-        cache['wund']['forecasts'][location]['requested_at']
+
+    if 'alerts' in data:
+        weather['alerts'] = [parse_alert(a) for a in data['alerts']]
+
+    conditions = data['current_observation']
+    weather['info']['time'] = datetime.strptime(
+        cache['wund']['forecasts'][location]['requested_at'], TIMESTAMP_FMT)
 
     try:
         r = urlparse.urlparse(conditions['icon_url'])
@@ -269,10 +303,21 @@ def _get_fio_weather(settings, location):
         data = forecastio.forecast(location, params={'units': units})
         cache = _save_cached_data('fio', location, data)
 
-    conditions = data['currently']
     weather = {'current': {}, 'forecast': [], 'info': {}}
-    weather['info']['time'] = \
-        cache['fio']['forecasts'][location]['requested_at']
+
+    if 'alerts' in data:
+        alerts = []
+        for alert in data['alerts']:
+            alerts.append({
+                'description': alert['title'],
+                'expires': datetime.fromtimestamp(alert['expires']),
+                'uri': alert['uri']
+            })
+        weather['alerts'] = alerts
+
+    conditions = data['currently']
+    weather['info']['time'] = datetime.strptime(
+        cache['fio']['forecasts'][location]['requested_at'], TIMESTAMP_FMT)
 
     weather['current'] = {
         'weather': conditions['summary'],
@@ -310,6 +355,23 @@ def _get_fio_weather(settings, location):
     forecast = [get_day_info(d) for d in days]
     weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
     return weather
+
+
+def tell_time_format(ignored):
+    items = []
+    for fmt in TIME_FORMATS:
+        now = datetime.now()
+        items.append(alfred.Item(now.strftime(fmt), arg=fmt, valid=True))
+    return items
+
+
+def do_time_format(fmt):
+    settings = _load_settings(False)
+    settings['time_format'] = fmt
+    _save_settings(settings)
+
+    now = datetime.now()
+    _out('Showing times as {}'.format(now.strftime(fmt)))
 
 
 def tell_icons(ignored):
@@ -495,6 +557,18 @@ def tell_weather(location):
 
     items = []
 
+    # alerts
+    if 'alerts' in weather:
+        for alert in weather['alerts']:
+            subtitle = 'Expires at {}'.format(alert['expires'].strftime(
+                       settings['time_format']))
+            item = alfred.Item(alert['description'], subtitle=subtitle,
+                               icon='error.png')
+            if 'uri' in alert:
+                item.arg = _clean(alert['uri'])
+                item.valid = True
+            items.append(item)
+
     # conditions
     tu = 'F' if settings['units'] == 'us' else 'C'
     title = u'Currently in {}: {}'.format(
@@ -522,17 +596,16 @@ def tell_weather(location):
             subtitle += u',  Precip: {}%'.format(day['precip'])
         arg = SERVICES[settings['service']]['lib'].get_forecast_url(
             location, day['date'])
-        arg = arg.replace('&', '&amp;')
         icon = _get_icon(settings, day['icon'])
-        items.append(alfred.Item(title, subtitle, icon=icon, arg=arg,
+        items.append(alfred.Item(title, subtitle, icon=icon, arg=_clean(arg),
                                  valid=True))
 
-    line = unichr(0x2500) * 20
     arg = SERVICES[settings['service']]['url']
-    items.append(alfred.Item(line, u'Fetched from {} at {}'.format(
-                             SERVICES[settings['service']]['name'],
-                             weather['info']['time']), icon='',
-                             arg=arg, valid=True))
+    time = weather['info']['time'].strftime(settings['time_format'])
+
+    items.append(alfred.Item(LINE, u'Fetched from {} at {}'.format(
+                             SERVICES[settings['service']]['name'], time),
+                             icon='', arg=arg, valid=True))
     return items
 
 
@@ -545,8 +618,14 @@ def tell(name, query=''):
         else:
             items = [alfred.Item('Invalid action "{}"'.format(name))]
     except SetupError, e:
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
         items = [alfred.Item(e.title, e.subtitle, icon='error.png')]
     except Exception, e:
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
         items = [alfred.Item(str(e), icon='error.png')]
 
     _out(alfred.to_xml(items))
@@ -561,9 +640,13 @@ def do(name, query=''):
         else:
             _out('Invalid command "{}"'.format(name))
     except Exception, e:
+        if show_exceptions:
+            import traceback
+            traceback.print_exc()
         _out('Error: {}'.format(e))
 
 
 if __name__ == '__main__':
+    show_exceptions = True
     from sys import argv
     globals()[argv[1]](*argv[2:])
