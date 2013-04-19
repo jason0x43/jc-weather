@@ -586,8 +586,8 @@ def tell_weather(location):
 
     # forecast
     days = weather['forecast']
-    if len(days) > 5:
-        days = days[:5]
+    if len(days) > settings['days']:
+        days = days[:settings['days']]
     for day in days:
         title = u'{}: {}'.format(day['day'], day['conditions'].capitalize())
         subtitle = u'High: {}°{},  Low: {}°{}'.format(
