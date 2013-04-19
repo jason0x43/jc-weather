@@ -15,19 +15,20 @@ data_dir = os.path.expanduser('~/Library/Application Support/Alfred 2'
 
 class Item(object):
     '''An item in an Alfred feedback XML message'''
-    def __init__(self, uid, title, subtitle=None, icon=None, valid=False,
+    def __init__(self, title, subtitle=None, uid=None, icon=None, valid=False,
                  arg=None):
-        self.uid = uid
         self.title = title
         self.subtitle = subtitle
+        self.icon = icon if icon is not None else 'icon.png'
+        self.uid = uid
         self.valid = valid
         self.arg = arg
-        self.icon = icon if icon is not None else 'icon.png'
 
     def to_xml(self):
         attrs = []
 
-        attrs.append('uid="{}-{}"'.format(bundleid, self.uid))
+        if self.uid:
+            attrs.append(u'uid="{}-{}"'.format(bundleid, self.uid))
 
         if self.valid:
             attrs.append('valid="yes"')

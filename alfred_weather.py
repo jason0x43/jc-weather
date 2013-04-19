@@ -11,6 +11,7 @@ import os
 import os.path
 import re
 import time
+import urlparse
 import wunderground
 
 
@@ -45,15 +46,6 @@ FIO_TO_WUND = {
     'partly-cloudy-night': 'nt_partlycloudy',
     'wind': 'hazy',
 }
-
-
-class TimeCount(object):
-    def __init__(self):
-        self.time = int(time.time())
-
-    def next(self):
-        self.time += 1
-        return str(self.time)
 
 
 class SetupError(Exception):
@@ -212,9 +204,18 @@ def _get_wund_weather(settings, location):
     weather['info']['time'] = \
         cache['wund']['forecasts'][location]['requested_at']
 
+    try:
+        r = urlparse.urlparse(conditions['icon_url'])
+        parts = os.path.split(r[2])[-1]
+        name, ext = os.path.splitext(parts)
+        icon = name
+    except:
+        icon = conditions['icon']
+
+
     weather['current'] = {
         'weather': conditions['weather'],
-        'icon': conditions['icon'],
+        'icon': icon,
         'humidity': int(conditions['relative_humidity'][:-1])
     }
     if settings['units'] == 'us':
@@ -318,7 +319,7 @@ def tell_icons(ignored):
         uid = 'icons-{}'.format(iset)
         icon = 'icons/{}/{}.png'.format(iset, EXAMPLE_ICON)
         title = iset.capitalize()
-        item = alfred.Item(uid, title, icon=icon, arg=iset, valid=True)
+        item = alfred.Item(title, uid=uid, icon=icon, arg=iset, valid=True)
 
         info_file = os.path.join('icons', iset, 'info.json')
         if os.path.exists(info_file):
@@ -342,7 +343,7 @@ def tell_key(query):
     items = []
 
     for svc in SERVICES.keys():
-        items.append(alfred.Item(svc, SERVICES[svc]['name'],
+        items.append(alfred.Item(SERVICES[svc]['name'], uid=svc,
                                  arg=SERVICES[svc]['getkey'], valid=True))
 
     if len(query.strip()) > 0:
@@ -358,7 +359,7 @@ def tell_days(days):
         length = '{} day'.format(settings['days'])
         if settings['days'] != 1:
             length += 's'
-        return [alfred.Item('days', 'Currently showing {} of forecast'.format(
+        return [alfred.Item('Currently showing {} of forecast'.format(
                             length), 'Enter a new value to change')]
     else:
         days = int(days)
@@ -369,8 +370,8 @@ def tell_days(days):
         length = '{} day'.format(days)
         if days != 1:
             length += 's'
-        return [alfred.Item('days', 'Show {} of forecast'.format(length),
-                            arg=days, valid=True)]
+        return [alfred.Item('Show {} of forecast'.format(length), arg=days,
+                            valid=True)]
 
 
 def do_days(days):
@@ -391,7 +392,7 @@ def tell_service(query):
     items = []
 
     for svc in SERVICES.keys():
-        items.append(alfred.Item(svc, SERVICES[svc]['name'], arg=svc,
+        items.append(alfred.Item(SERVICES[svc]['name'], uid=svc, arg=svc,
                                  valid=True))
 
     if len(query.strip()) > 0:
@@ -408,7 +409,7 @@ def do_service(svc):
     key_name = 'key.{}'.format(svc)
     key = settings.get(key_name)
     user_key = alfred.get_from_user(
-        'Update API key', 'Enter your API key for {}'.format(
+        'Update API key', u'Enter your API key for {}'.format(
         SERVICES[svc]['name']), value=key)
 
     if len(user_key) != 0:
@@ -416,17 +417,15 @@ def do_service(svc):
         settings[key_name] = user_key
 
     _save_settings(settings)
-    _out('Using {} for weather data with key {}'.format(SERVICES[svc]['name'],
+    _out(u'Using {} for weather data with key {}'.format(SERVICES[svc]['name'],
          key))
 
 
 def tell_units(arg):
     items = []
 
-    us = alfred.Item('us', 'US', u'US units (°F, in, mph)', arg='us',
-                     valid=True)
-    metric = alfred.Item('si', 'SI', u'SI units (°C, cm, kph)',
-                         arg='si', valid=True)
+    us = alfred.Item('US', u'US units (°F, in, mph)', arg='us', valid=True)
+    metric = alfred.Item('SI', u'SI units (°C, cm, kph)', arg='si', valid=True)
 
     if len(arg.strip()) == 0:
         items.append(us)
@@ -436,7 +435,7 @@ def tell_units(arg):
     elif 'metric'.startswith(arg.lower()):
         items.append(metric)
     else:
-        items.append(alfred.Item('bad', 'Invalid units'))
+        items.append(alfred.Item('Invalid units'))
 
     return items
 
@@ -454,8 +453,8 @@ def tell_location(query):
     if len(query.strip()) > 0:
         results = wunderground.autocomplete(query)
         for result in [r for r in results if r['type'] == 'city']:
-            items.append(alfred.Item(result['zmw'], result['name'],
-                                     arg=result['name'], valid=True))
+            items.append(alfred.Item(result['name'], arg=result['name'],
+                                     valid=True))
 
     return items
 
@@ -495,7 +494,6 @@ def tell_weather(location):
         weather = _get_fio_weather(settings, location)
 
     items = []
-    tcount = TimeCount()
 
     # conditions
     tu = 'F' if settings['units'] == 'us' else 'C'
@@ -507,8 +505,7 @@ def tell_weather(location):
         int(round(weather['current']['humidity'])))
 
     icon = _get_icon(settings, weather['current']['icon'])
-    items.append(alfred.Item(tcount.next(), title, subtitle,
-                             icon=icon))
+    items.append(alfred.Item(title, subtitle, icon=icon))
 
     location = '{},{}'.format(settings['location']['latitude'],
                               settings['location']['longitude'])
@@ -518,7 +515,7 @@ def tell_weather(location):
     if len(days) > 5:
         days = days[:5]
     for day in days:
-        title = '{}: {}'.format(day['day'], day['conditions'].capitalize())
+        title = u'{}: {}'.format(day['day'], day['conditions'].capitalize())
         subtitle = u'High: {}°{},  Low: {}°{}'.format(
             day['temp_hi'], tu, day['temp_lo'], tu)
         if 'precip' in day:
@@ -527,14 +524,15 @@ def tell_weather(location):
             location, day['date'])
         arg = arg.replace('&', '&amp;')
         icon = _get_icon(settings, day['icon'])
-        items.append(alfred.Item(tcount.next(), title, subtitle,
-                                 icon=icon, arg=arg, valid=True))
+        items.append(alfred.Item(title, subtitle, icon=icon, arg=arg,
+                                 valid=True))
 
     line = unichr(0x2500) * 20
-    items.append(alfred.Item(tcount.next(), line,
-                             'Fetched from {} at {}'.format(
+    arg = SERVICES[settings['service']]['url']
+    items.append(alfred.Item(line, u'Fetched from {} at {}'.format(
                              SERVICES[settings['service']]['name'],
-                             weather['info']['time']), icon=''))
+                             weather['info']['time']), icon='',
+                             arg=arg, valid=True))
     return items
 
 
@@ -545,11 +543,11 @@ def tell(name, query=''):
         if cmd in globals():
             items = globals()[cmd](query)
         else:
-            items = [alfred.Item('tell', 'Invalid action "{}"'.format(name))]
+            items = [alfred.Item('Invalid action "{}"'.format(name))]
     except SetupError, e:
-        items = [alfred.Item('error', e.title, e.subtitle, icon='error.png')]
+        items = [alfred.Item(e.title, e.subtitle, icon='error.png')]
     except Exception, e:
-        items = [alfred.Item('error', str(e), icon='error.png')]
+        items = [alfred.Item(str(e), icon='error.png')]
 
     _out(alfred.to_xml(items))
 

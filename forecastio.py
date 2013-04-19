@@ -45,7 +45,17 @@ def forecast(location, params=None):
     r = requests.get(url, params=params, headers=headers)
 
     if r.status_code != 200:
-        raise WeatherException('Your key is invalid or forecast.io is down')
+        msg = 'forecast.io seems to be down'
+        if r.status_code == 403:
+            msg = 'Your key is invalid'
+        else:
+            try:
+                response = r.json()
+                if response.get('error') == 'An invalid location was provided.':
+                    msg = 'Your location is invalid'
+            except Exception:
+                msg = 'forecast.io returned code {}'.format(r.status_code)
+        raise WeatherException(msg)
 
     r = r.json()
     if 'error' in r:
@@ -66,4 +76,4 @@ if __name__ == '__main__':
     set_key(args.key)
 
     from pprint import pformat
-    print pformat(forecast(args.latitude, args.longitude))
+    print pformat(forecast('{},{}'.format(args.latitude, args.longitude)))
