@@ -17,17 +17,13 @@ and a forecast.
 The setup commands are:
 
   * `days` - set the number of forecast days to show
+  * `format` - set the format for displaying timestamps
   * `getkey` - open the API key signup page for your current service
   * `icons` - choose an icon set
   * `location <ZIP or city>` - set your default location
   * `service` - set your preferred weather service, forecast.io or Weather
     Underground
   * `units` - set your preferred unit system
-
-The `weather` command, with no argument, will show information for your default
-location. It can also be given a location, such as a ZIP code or city name. It
-(and the `wset location` command) uses the Weather Underground autocomplete API
-to find possible locations based on what you enter.
 
 The first time you try to access the weather, you'll be asked to set your
 preferred service, currently either Weather Underground or Forecast.io. You'll
@@ -39,10 +35,15 @@ free.
 Once you've set the service and API key, you'll also need to set a default
 location. This is done with the `wset location` command.
 
-The data for each city you query is cached for 5 minutes to keep requests down
-to a reasonable level while you're playing around with the workflow. The free
-tier of Weather Underground API access is throttled to 10 requests per minute,
-and it's surprisingly easy to hit that limit (you know, when you're spastically
+The `weather` command, with no argument, will show information for your default
+location. It can also be given a location, such as a ZIP code or city name. It
+(and the `wset location` command) uses the Weather Underground autocomplete API
+to find possible locations based on what you enter.
+
+Data for each city you query is cached for 5 minutes to keep requests down to a
+reasonable level while you're playing around with the workflow. The free tier
+of Weather Underground API access is throttled to 10 requests per minute, and
+it's surprisingly easy to hit that limit (you know, when you're spastically
 querying city after city because using an Alfred workflow is just so cool).
 
 Installation
