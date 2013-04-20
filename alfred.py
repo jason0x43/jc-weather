@@ -3,6 +3,7 @@
 
 import plistlib
 import os.path
+import uuid
 
 preferences = plistlib.readPlist('info.plist')
 bundleid = preferences['bundleid']
@@ -29,6 +30,8 @@ class Item(object):
 
         if self.uid:
             attrs.append(u'uid="{}-{}"'.format(bundleid, self.uid))
+        else:
+            attrs.append(u'uid="{}"'.format(uuid.uuid4()))
 
         if self.valid:
             attrs.append('valid="yes"')
