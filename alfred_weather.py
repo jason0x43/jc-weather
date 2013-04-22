@@ -357,21 +357,38 @@ def _get_fio_weather(settings, location):
     return weather
 
 
-def tell_time_format(ignored):
+def tell_time_format(fmt):
     items = []
-    for fmt in TIME_FORMATS:
-        now = datetime.now()
-        items.append(alfred.Item(now.strftime(fmt), arg=fmt, valid=True))
+    now = datetime.now()
+
+    if fmt:
+        try:
+            items.append(alfred.Item(now.strftime(fmt), arg=fmt, valid=True))
+        except:
+            items.append(alfred.Item('Waiting for input...'))
+        items.append(alfred.Item('Python time format syntax...',
+                                 arg='http://docs.python.org/2/library/'
+                                     'datetime.html#strftime-and-strptime-'
+                                     'behavior',
+                                 valid=True))
+    else:
+        for fmt in TIME_FORMATS:
+            items.append(alfred.Item(now.strftime(fmt), arg=fmt, valid=True))
+
     return items
 
 
 def do_time_format(fmt):
-    settings = _load_settings(False)
-    settings['time_format'] = fmt
-    _save_settings(settings)
+    if fmt.startswith('http://'):
+        import webbrowser
+        webbrowser.open(fmt)
+    else:
+        settings = _load_settings(False)
+        settings['time_format'] = fmt
+        _save_settings(settings)
 
-    now = datetime.now()
-    _out('Showing times as {}'.format(now.strftime(fmt)))
+        now = datetime.now()
+        _out('Showing times as {}'.format(now.strftime(fmt)))
 
 
 def tell_icons(ignored):
@@ -470,17 +487,19 @@ def do_service(svc):
 
     key_name = 'key.{}'.format(svc)
     key = settings.get(key_name)
-    user_key = alfred.get_from_user(
+    answer = alfred.get_from_user(
         'Update API key', u'Enter your API key for {}'.format(
-        SERVICES[svc]['name']), value=key)
+        SERVICES[svc]['name']), value=key, extra_buttons='Get key')
 
-    if len(user_key) != 0:
-        key = user_key
-        settings[key_name] = user_key
-
-    _save_settings(settings)
-    _out(u'Using {} for weather data with key {}'.format(SERVICES[svc]['name'],
-         key))
+    button, sep, key = answer.partition('|')
+    if button == 'Ok':
+        settings[key_name] = key
+        _save_settings(settings)
+        _out(u'Using {} for weather data with key {}'.format(
+             SERVICES[svc]['name'], key))
+    elif button == 'Get key':
+        import webbrowser
+        webbrowser.open(SERVICES[svc]['getkey'])
 
 
 def tell_units(arg):

@@ -65,7 +65,7 @@ def to_xml(items):
     return u''.join(msg)
 
 
-def get_from_user(title, prompt, hidden=False, value=None):
+def get_from_user(title, prompt, hidden=False, value=None, extra_buttons=None):
     '''
     Popup a dialog to request some piece of information.
 
@@ -75,6 +75,16 @@ def get_from_user(title, prompt, hidden=False, value=None):
     if value is None:
         value = ''
 
+    buttons = ['Cancel', 'Ok']
+    if extra_buttons:
+        if isinstance(extra_buttons, (list, tuple)):
+            buttons = extra_buttons + buttons
+        else:
+            buttons.insert(0, extra_buttons)
+    buttons = '{{{}}}'.format(', '.join(['"{}"'.format(b) for b in buttons]))
+
+    hidden = 'with hidden answer' if hidden else ''
+
     script = '''
         on run argv
           tell application "Alfred 2"
@@ -83,34 +93,21 @@ def get_from_user(title, prompt, hidden=False, value=None):
               set alfredIcon to path to resource "appicon.icns" in bundle ¬
                 (alfredPath as alias)
 
-              set dlgTitle to (item 1 of argv)
-              set dlgPrompt to (item 2 of argv)
-
-              if (count of argv) is 3
-                set dlgHidden to (item 3 of argv as boolean)
-              else
-                set dlgHidden to false
-              end if
-
-              if dlgHidden
-                display dialog dlgPrompt & ":" with title dlgTitle ¬
-                  default answer "{v}" with icon alfredIcon with hidden answer
-              else
-                display dialog dlgPrompt & ":" with title dlgTitle ¬
-                  default answer "{v}" with icon alfredIcon
-              end if
-
-              set answer to text returned of result
+              try
+                display dialog "{p}:" with title "{t}" default answer "{v}" ¬
+                  buttons {b} default button "Ok" with icon alfredIcon {h}
+                set answer to (button returned of result) & "|" & ¬
+                  (text returned of result)
+              on error number -128
+                set answer to "Cancel|"
+              end
           end tell
-        end run'''.format(v=value)
+        end run'''.format(v=value, p=prompt, t=title, h=hidden, b=buttons)
 
     from subprocess import Popen, PIPE
-    cmd = ['osascript', '-', title, prompt]
-    if hidden:
-        cmd.append('true')
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, stderr = p.communicate(script)
-    return stdout.rstrip('\n')
+    return stdout.decode('utf-8').rstrip('\n')
 
 
 def show_message(title, message):
@@ -123,17 +120,13 @@ def show_message(title, message):
               set alfredIcon to path to resource "appicon.icns" in bundle ¬
                 (alfredPath as alias)
 
-              set dlgTitle to (item 1 of argv)
-              set dlgMessage to (item 2 of argv)
-
-              display dialog dlgMessage with title dlgTitle buttons ¬
+              display dialog "{m}" with title "{t}" buttons ¬
                 {"OK"} default button "OK" with icon alfredIcon
           end tell
-        end run'''
+        end run'''.format(t=title, m=message)
 
     from subprocess import Popen, PIPE
-    cmd = ['osascript', '-', title, message]
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     p.communicate(script)
 
 
