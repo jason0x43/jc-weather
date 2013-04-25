@@ -207,6 +207,10 @@ def _load_settings(validate=True):
         if 'service' not in settings:
             raise SetupError('You need to set your weather service',
                              'Use the "wset service" command.')
+        key_name = 'key.' + settings['service']
+        if key_name not in settings:
+            raise SetupError('You need to set your weather service',
+                             'Use the "wset service" command.')
         if 'location' not in settings:
             raise SetupError('Missing default location', 'You must specify a '
                              'default location with the "wset location" '
