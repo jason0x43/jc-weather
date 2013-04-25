@@ -181,6 +181,8 @@ def _migrate_settings():
         tz = glocation.timezone(location['latitude'], location['longitude'])
         settings['location']['timezone'] = tz['timeZoneId']
 
+    settings['version'] = SETTINGS_VERSION
+
 
 def _load_settings(validate=True):
     '''Get an the location and units to use'''
@@ -189,8 +191,7 @@ def _load_settings(validate=True):
         'units': DEFAULT_UNITS,
         'icons': DEFAULT_ICONS,
         'time_format': DEFAULT_TIME_FMT,
-        'days': 3,
-        'version': SETTINGS_VERSION,
+        'days': 3
     })
 
     if os.path.exists(SETTINGS_FILE):
@@ -199,6 +200,8 @@ def _load_settings(validate=True):
             if settings.get('version', 0) < SETTINGS_VERSION:
                 _migrate_settings()
                 _save_settings()
+    else:
+        settings['version'] = SETTINGS_VERSION
 
     if validate:
         if 'service' not in settings:
