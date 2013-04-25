@@ -65,6 +65,7 @@ The only requirements are:
 
   * Python 2.7+
   * `requests`
+  * `pytz`
 
 If you have Lion or Mountain Lion, the [prepackaged workflow][pkg] includes
 everything you need.

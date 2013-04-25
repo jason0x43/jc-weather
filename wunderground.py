@@ -37,7 +37,8 @@ def forecast(location):
     The location may be 'latitude,longitude' (-39.452,18.234), a US ZIP code,
     or a 'state/city' path like 'OH/Fairborn' or 'NY/New_York'.
     '''
-    url = '{}/conditions/alerts/forecast10day/q/{}.json'.format(api, location)
+    url = '{}/conditions/alerts/astronomy/forecast10day/q/{}.json'.format(
+        api, location)
     r = requests.get(url).json()
     if 'error' in r['response']:
         raise WeatherException('Your key is invalid or wunderground is down',
