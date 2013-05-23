@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding=UTF-8
 
-from datetime import date, datetime, timedelta, tzinfo
-from sys import stdout
 import alfred
 import forecastio
 import glocation
@@ -14,6 +12,22 @@ import time
 import urlparse
 import wunderground
 import pytz
+import logging
+from datetime import date, datetime, timedelta, tzinfo
+from logging import handlers
+from sys import stdout
+
+
+FORMAT = '[%(asctime)s] %(levelname)s - %(name)s - %(message)s'
+LOG = logging.getLogger(__name__)
+LOG_FILE = os.path.join(os.path.dirname(__file__), 'debug.log')
+
+handler = handlers.TimedRotatingFileHandler(LOG_FILE, when='S', interval=1,
+                                            backupCount=1)
+handler.setFormatter(logging.Formatter(FORMAT))
+LOG.setLevel(logging.DEBUG)
+LOG.addHandler(handler)
+
 
 SERVICES = {
     'wund': {
@@ -655,10 +669,14 @@ def tell_location(query):
     items = []
 
     if len(query.strip()) > 0:
+        LOG.debug('Getting location(s) with query "{}"'.format(query))
         results = wunderground.autocomplete(query)
+        LOG.debug('Got: {}'.format(results))
         for result in [r for r in results if r['type'] == 'city']:
             items.append(alfred.Item(result['name'], arg=result['name'],
                                      valid=True))
+    else:
+        LOG.debug('Empty query')
 
     return items
 
@@ -793,18 +811,16 @@ def tell(name, query=''):
     try:
         cmd = 'tell_{}'.format(name)
         if cmd in globals():
+            LOG.info('Running command {}'.format(name))
             items = globals()[cmd](query)
         else:
+            LOG.warn('Invalid command {}'.format(name))
             items = [alfred.Item('Invalid action "{}"'.format(name))]
     except SetupError, e:
-        if show_exceptions:
-            import traceback
-            traceback.print_exc()
+        LOG.exception('Error telling')
         items = [alfred.Item(e.title, e.subtitle, icon='error.png')]
     except Exception, e:
-        if show_exceptions:
-            import traceback
-            traceback.print_exc()
+        LOG.exception('Error telling')
         items = [alfred.Item(str(e), icon='error.png')]
 
     _out(alfred.to_xml(items))
@@ -815,13 +831,14 @@ def do(name, query=''):
     try:
         cmd = 'do_{}'.format(name)
         if cmd in globals():
+            LOG.exception('Running command {} with input "{}"'.format(name,
+                          query))
             globals()[cmd](query)
         else:
+            LOG.warn('Invalid command {}'.format(name))
             _out('Invalid command "{}"'.format(name))
     except Exception, e:
-        if show_exceptions:
-            import traceback
-            traceback.print_exc()
+        LOG.exception('Error doing')
         _out('Error: {}'.format(e))
 
 
