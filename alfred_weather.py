@@ -769,6 +769,25 @@ def tell_weather(location):
     return items
 
 
+def tell_about(name, query=''):
+    import re
+    import sys
+
+    items = []
+
+    readme = alfred.preferences['readme']
+    version = re.match(r'.*\bVersion: (?P<ver>\d[.\d]+)\b.*', readme)
+    version = version.group('ver')
+    version_info = 'Version {}'.format(version)
+    items.append(alfred.Item(version_info))
+
+    py_ver = 'Python {:08X}'.format(sys.hexversion)
+    items.append(alfred.Item(py_ver))
+
+    return items
+
+
+
 def tell(name, query=''):
     '''Tell something'''
     try:

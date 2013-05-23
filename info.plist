@@ -482,9 +482,39 @@ alfred_weather.tell('weather', '{query}')</string>
 			<key>uid</key>
 			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>wset about</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string>import alfred_weather
+alfred_weather.tell('about')</string>
+				<key>subtext</key>
+				<string>Show system information</string>
+				<key>title</key>
+				<string>about</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>943403E9-761E-4546-AC70-0F3330985F49</string>
+		</dict>
 	</array>
 	<key>readme</key>
-	<string>This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
+	<string>Version: 20130523.1
+
+This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
 	<key>uidata</key>
 	<dict>
 		<key>0C275773-C2F3-45CA-8E57-F8698A26F241</key>
@@ -521,6 +551,11 @@ alfred_weather.tell('weather', '{query}')</string>
 		<dict>
 			<key>ypos</key>
 			<real>370</real>
+		</dict>
+		<key>943403E9-761E-4546-AC70-0F3330985F49</key>
+		<dict>
+			<key>ypos</key>
+			<real>850</real>
 		</dict>
 		<key>BC2E4EDA-3EF7-4FF4-9708-BD60C615F674</key>
 		<dict>
