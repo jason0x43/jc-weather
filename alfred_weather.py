@@ -22,7 +22,7 @@ FORMAT = '[%(asctime)s] %(levelname)s - %(name)s - %(message)s'
 LOG = logging.getLogger(__name__)
 LOG_FILE = os.path.join(os.path.dirname(__file__), 'debug.log')
 
-handler = handlers.TimedRotatingFileHandler(LOG_FILE, when='S', interval=1,
+handler = handlers.TimedRotatingFileHandler(LOG_FILE, when='H', interval=1,
                                             backupCount=1)
 handler.setFormatter(logging.Formatter(FORMAT))
 LOG.setLevel(logging.DEBUG)
