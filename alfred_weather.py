@@ -337,10 +337,15 @@ def _get_wund_weather():
 
         if 'level_meteoalarm' not in alert:
             # only generate URIs for US alerts
-            zone = alert['ZONES'][0]
-            data['uri'] = '{}/US/{}/{}.html'.format(SERVICES['wund']['url'],
-                                                    zone['state'],
-                                                    zone['ZONE'])
+            try:
+                zone = alert['ZONES'][0]
+                data['uri'] = '{}/US/{}/{}.html'.format(SERVICES['wund']['url'],
+                                                        zone['state'],
+                                                        zone['ZONE'])
+            except:
+                location = '{},{}'.format(settings['location']['latitude'],
+                                          settings['location']['longitude'])
+                data['uri'] = wunderground.get_forecast_url(location)
         return data
 
     weather = {'current': {}, 'forecast': [], 'info': {}}
