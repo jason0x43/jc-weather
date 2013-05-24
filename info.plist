@@ -568,7 +568,7 @@ alfred_weather.tell('about')</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Version: 20130523.2
+	<string>Version: 20130524.0
 
 This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
 	<key>uidata</key>
