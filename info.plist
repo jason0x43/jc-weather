@@ -83,6 +83,17 @@
 				<string></string>
 			</dict>
 		</array>
+		<key>A64CE83C-A887-40EE-98BA-011E4D18CCE2</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>BC2E4EDA-3EF7-4FF4-9708-BD60C615F674</key>
 		<array>
 			<dict>
@@ -110,6 +121,17 @@
 			<dict>
 				<key>destinationuid</key>
 				<string>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>CC65D300-0F4E-4FE5-A620-A6405D151C5F</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A64CE83C-A887-40EE-98BA-011E4D18CCE2</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -160,29 +182,6 @@
 	<string>Weather</string>
 	<key>objects</key>
 	<array>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>lastpathcomponent</key>
-				<false/>
-				<key>onlyshowifquerypopulated</key>
-				<true/>
-				<key>output</key>
-				<integer>0</integer>
-				<key>removeextension</key>
-				<false/>
-				<key>sticky</key>
-				<false/>
-				<key>text</key>
-				<string>{query}</string>
-				<key>title</key>
-				<string>Weather</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.output.notification</string>
-			<key>uid</key>
-			<string>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</string>
-		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -372,6 +371,29 @@ alfred_weather.do('days', '{query}')</string>
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>output</key>
+				<integer>0</integer>
+				<key>removeextension</key>
+				<false/>
+				<key>sticky</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Weather</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
@@ -510,6 +532,40 @@ alfred_weather.tell('about')</string>
 			<key>uid</key>
 			<string>943403E9-761E-4546-AC70-0F3330985F49</string>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>keyword</key>
+				<string>wset log</string>
+				<key>subtext</key>
+				<string>Show the command log</string>
+				<key>text</key>
+				<string>log</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>CC65D300-0F4E-4FE5-A620-A6405D151C5F</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>open ./debug.log</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>A64CE83C-A887-40EE-98BA-011E4D18CCE2</string>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string>Version: 20130523.2
@@ -557,6 +613,11 @@ This workflow is based on David Ferguson's Weather workflow. It includes icon se
 			<key>ypos</key>
 			<real>850</real>
 		</dict>
+		<key>A64CE83C-A887-40EE-98BA-011E4D18CCE2</key>
+		<dict>
+			<key>ypos</key>
+			<real>970</real>
+		</dict>
 		<key>BC2E4EDA-3EF7-4FF4-9708-BD60C615F674</key>
 		<dict>
 			<key>ypos</key>
@@ -572,6 +633,11 @@ This workflow is based on David Ferguson's Weather workflow. It includes icon se
 			<key>ypos</key>
 			<real>130</real>
 		</dict>
+		<key>CC65D300-0F4E-4FE5-A620-A6405D151C5F</key>
+		<dict>
+			<key>ypos</key>
+			<real>970</real>
+		</dict>
 		<key>CC6755DF-114A-4D12-9A2B-D265703FA3F1</key>
 		<dict>
 			<key>ypos</key>
@@ -585,7 +651,7 @@ This workflow is based on David Ferguson's Weather workflow. It includes icon se
 		<key>DB890638-F8DB-4DC7-A1DA-DEB5168CAA46</key>
 		<dict>
 			<key>ypos</key>
-			<real>10</real>
+			<real>490</real>
 		</dict>
 		<key>F41F0372-A249-4877-91B9-7501F58F9B18</key>
 		<dict>

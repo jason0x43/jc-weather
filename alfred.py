@@ -1,9 +1,23 @@
 #!/usr/bin/python
 # coding=UTF-8
 
-import plistlib
+import logging
 import os.path
+import plistlib
 import uuid
+from logging import handlers
+
+log_file = os.path.join(os.path.dirname(__file__), 'debug.log')
+
+_format = '[%(asctime)s] %(levelname)s: %(name)s: %(message)s'
+_root_log = logging.getLogger()
+_handler = handlers.TimedRotatingFileHandler(log_file, when='H', interval=1,
+                                             backupCount=1)
+_handler.setFormatter(logging.Formatter(_format))
+_root_log.setLevel(logging.DEBUG)
+_root_log.addHandler(_handler)
+
+LOG = logging.getLogger(__name__)
 
 preferences = plistlib.readPlist('info.plist')
 bundleid = preferences['bundleid']

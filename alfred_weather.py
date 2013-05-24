@@ -18,15 +18,7 @@ from logging import handlers
 from sys import stdout
 
 
-FORMAT = '[%(asctime)s] %(levelname)s - %(name)s - %(message)s'
 LOG = logging.getLogger(__name__)
-LOG_FILE = os.path.join(os.path.dirname(__file__), 'debug.log')
-
-handler = handlers.TimedRotatingFileHandler(LOG_FILE, when='H', interval=1,
-                                            backupCount=1)
-handler.setFormatter(logging.Formatter(FORMAT))
-LOG.setLevel(logging.DEBUG)
-LOG.addHandler(handler)
 
 
 SERVICES = {
@@ -671,7 +663,7 @@ def tell_location(query):
     if len(query.strip()) > 0:
         LOG.debug('Getting location(s) with query "{}"'.format(query))
         results = wunderground.autocomplete(query)
-        LOG.debug('Got: {}'.format(results))
+        LOG.debug('Got {} results'.format(len(results)))
         for result in [r for r in results if r['type'] == 'city']:
             items.append(alfred.Item(result['name'], arg=result['name'],
                                      valid=True))
