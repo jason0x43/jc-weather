@@ -14,7 +14,6 @@ import wunderground
 import pytz
 import logging
 from datetime import date, datetime, timedelta, tzinfo
-from logging import handlers
 from sys import stdout
 
 
@@ -69,11 +68,11 @@ FIO_TO_WUND = {
 class LocalTimezone(tzinfo):
     '''A tzinfo object for the system timezone'''
     def __init__(self):
-        self.stdoffset = timedelta(seconds = -time.timezone)
+        self.stdoffset = timedelta(seconds=-time.timezone)
         if time.daylight:
-            self.dstoffset = timedelta(seconds = -time.altzone)
+            self.dstoffset = timedelta(seconds=-time.altzone)
         else:
-            self.dstoffset = stdoffset
+            self.dstoffset = self.stdoffset
         self.dstdiff = self.dstoffset - self.stdoffset
         self.zero = timedelta(0)
 
@@ -139,6 +138,7 @@ def _localize_time(dtime=None):
         return remote_time.astimezone(local_tz)
     else:
         return local_tz.localize(datetime.now())
+
 
 def _remotize_time(dtime=None):
     '''
@@ -345,9 +345,8 @@ def _get_wund_weather():
             # only generate URIs for US alerts
             try:
                 zone = alert['ZONES'][0]
-                data['uri'] = '{}/US/{}/{}.html'.format(SERVICES['wund']['url'],
-                                                        zone['state'],
-                                                        zone['ZONE'])
+                data['uri'] = '{}/US/{}/{}.html'.format(
+                    SERVICES['wund']['url'], zone['state'], zone['ZONE'])
             except:
                 location = '{},{}'.format(settings['location']['latitude'],
                                           settings['location']['longitude'])
@@ -381,7 +380,6 @@ def _get_wund_weather():
         icon = name
     except:
         icon = conditions['icon']
-
 
     weather['current'] = {
         'weather': conditions['weather'],
@@ -455,8 +453,6 @@ def _get_fio_weather():
     }
 
     days = data['daily']['data']
-    sunrise = None
-    sunset = None
 
     if len(days) > 0:
         today = days[0]
@@ -736,7 +732,9 @@ def tell_weather(location):
         _remotize_time().strftime(settings['time_format']))
 
     icon = _get_icon(weather['current']['icon'])
-    items.append(alfred.Item(title, subtitle, icon=icon))
+    arg = SERVICES[settings['service']]['lib'].get_forecast_url(location)
+    items.append(alfred.Item(title, subtitle, icon=icon, valid=True,
+                 arg=_clean(arg)))
 
     location = '{},{}'.format(settings['location']['latitude'],
                               settings['location']['longitude'])
@@ -795,7 +793,6 @@ def tell_about(name, query=''):
     items.append(alfred.Item(py_ver))
 
     return items
-
 
 
 def tell(name, query=''):
