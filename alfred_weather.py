@@ -336,10 +336,12 @@ def _get_wund_weather():
         _save_cached_data('wund', location, data)
 
     def parse_alert(alert):
-        data = {
-            'description': alert['description'],
-            'expires': datetime.fromtimestamp(int(alert['expires_epoch'])),
-        }
+        data = { 'description': alert['description'] }
+        try:
+            data['expires'] = datetime.fromtimestamp(int(alert['expires_epoch']))
+        except ValueError:
+            data['expires'] = None
+            LOG.debug('invalid expiration time: %s', alert['expires_epoch'])
 
         if 'level_meteoalarm' not in alert:
             # only generate URIs for US alerts
@@ -712,10 +714,10 @@ def tell_weather(location):
     # alerts
     if 'alerts' in weather:
         for alert in weather['alerts']:
-            subtitle = 'Expires at {}'.format(alert['expires'].strftime(
-                       settings['time_format']))
-            item = alfred.Item(alert['description'], subtitle=subtitle,
-                               icon='error.png')
+            item = alfred.Item(alert['description'], icon='error.png')
+            if alert['expires']:
+                item.subtitle = 'Expires at {}'.format(alert['expires'].strftime(
+                    settings['time_format']))
             if 'uri' in alert:
                 item.arg = _clean(alert['uri'])
                 item.valid = True
