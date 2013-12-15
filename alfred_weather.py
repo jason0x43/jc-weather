@@ -260,10 +260,12 @@ class WeatherWorkflow(Workflow):
     def _save_cached_data(self, service, location, data):
         if service not in self.cache:
             self.cache[service] = {'forecasts': {}}
-        self.cache[service]['forecasts'][location] = {
+        service_cache = self.cache[service]
+        service_cache['forecasts'][location] = {
             'requested_at': datetime.now().strftime(TIMESTAMP_FMT),
             'data': data
         }
+        self.cache[service] = service_cache
 
     def _get_icon(self, name):
         icon = 'icons/{}/{}.png'.format(self.config['icons'], name)
@@ -297,6 +299,7 @@ class WeatherWorkflow(Workflow):
         return target_now.date()
 
     def _get_wund_weather(self):
+        LOG.debug('getting weather from Weather Underground')
         location = '{},{}'.format(self.config['location']['latitude'],
                                   self.config['location']['longitude'])
         data = self._load_cached_data('wund', location)
@@ -312,7 +315,7 @@ class WeatherWorkflow(Workflow):
                 data['expires'] = datetime.fromtimestamp(int(alert['expires_epoch']))
             except ValueError:
                 data['expires'] = None
-                LOG.debug('invalid expiration time: %s', alert['expires_epoch'])
+                LOG.warn('invalid expiration time: %s', alert['expires_epoch'])
 
             if 'level_meteoalarm' not in alert:
                 # only generate URIs for US alerts
@@ -354,15 +357,21 @@ class WeatherWorkflow(Workflow):
         except:
             icon = conditions['icon']
 
+        feelslike = self.config.get('feelslike', False)
+        weather['feelslike'] = feelslike
+
         weather['current'] = {
             'weather': conditions['weather'],
             'icon': icon,
             'humidity': int(conditions['relative_humidity'][:-1])
         }
+
+        temp_kind = 'feelslike' if feelslike else 'temp'
+
         if self.config['units'] == 'us':
-            weather['current']['temp'] = conditions['temp_f']
+            weather['current']['temp'] = float(conditions[temp_kind + '_f'])
         else:
-            weather['current']['temp'] = conditions['temp_c']
+            weather['current']['temp'] = float(conditions[temp_kind + '_c'])
 
         days = data['forecast']['simpleforecast']['forecastday']
 
@@ -391,6 +400,7 @@ class WeatherWorkflow(Workflow):
         return weather
 
     def _get_fio_weather(self):
+        LOG.debug('getting weather from Forecast.io')
         location = '{},{}'.format(self.config['location']['latitude'],
                                   self.config['location']['longitude'])
         data = self._load_cached_data('fio', location)
@@ -417,11 +427,15 @@ class WeatherWorkflow(Workflow):
         weather['info']['time'] = datetime.strptime(
             self.cache['fio']['forecasts'][location]['requested_at'], TIMESTAMP_FMT)
 
+        feelslike = self.config.get('feelslike', False)
+        weather['feelslike'] = feelslike
+        temp_kind = 'apparentTemperature' if feelslike else 'temperature'
+
         weather['current'] = {
             'weather': conditions['summary'],
             'icon': FIO_TO_WUND.get(conditions['icon'], conditions['icon']),
             'humidity': conditions['humidity'] * 100,
-            'temp':  conditions['temperature']
+            'temp':  float(conditions[temp_kind])
         }
 
         days = data['daily']['data']
@@ -457,6 +471,7 @@ class WeatherWorkflow(Workflow):
 
     def tell_commands(self, query):
         query = query.strip()
+
         items = [
             Item('units', autocomplete='units ',
                  subtitle=u'Choose your preferred unit system'),
@@ -468,6 +483,8 @@ class WeatherWorkflow(Workflow):
                  subtitle='Select your preferred weather provider'),
             Item('days', autocomplete='days ',
                  subtitle='Set the number of forecast days to show'),
+            Item('feelslike', autocomplete='feelslike',
+                 subtitle='Toggle whether to show "feels like" temperatures'),
             Item('format', autocomplete='format ',
                  subtitle='Select a time format or specify your own'),
             Item('about', autocomplete='about',
@@ -655,15 +672,12 @@ class WeatherWorkflow(Workflow):
         query = query.strip()
 
         if len(query) > 0:
-            LOG.debug('Getting location(s) with query "{}"'.format(query))
             results = wunderground.autocomplete(query)
-            LOG.debug('Got {} results'.format(len(results)))
             for result in [r for r in results if r['type'] == 'city']:
                 items.append(Item(result['name'], arg='location|' + result['name'],
                                   valid=True))
         else:
             items.append(Item('Enter a location...'))
-            LOG.debug('Empty query')
 
         return items
 
@@ -729,6 +743,8 @@ class WeatherWorkflow(Workflow):
             int(round(weather['current']['temp'])), tu,
             int(round(weather['current']['humidity'])),
             self._remotize_time().strftime(self.config['time_format']))
+        if weather['feelslike']:
+            subtitle = u'Feels like ' + subtitle
 
         icon = self._get_icon(weather['current']['icon'])
         arg = SERVICES[self.config['service']]['lib'].get_forecast_url(location)
@@ -774,6 +790,22 @@ class WeatherWorkflow(Workflow):
                                  SERVICES[self.config['service']]['name'], time),
                                  icon='', arg=arg, valid=True))
         return items
+
+    # feelslike --------------------------------------------------------
+
+    def tell_feelslike(self, query):
+        feelslike = self.config.get('feelslike', False)
+        return [Item('Toggle whether to show "feels like" temperatures',
+                     subtitle='Current value is ' + str(feelslike).lower(),
+                     arg='feelslike', valid=True)]
+
+    def do_feelslike(self, query):
+        feelslike = self.config.get('feelslike', False)
+        self.config['feelslike'] = not feelslike
+        if self.config['feelslike']:
+            self.puts('Showing "feels like" temperatures')
+        else:
+            self.puts('Showing actual temperatures')
 
     # about ------------------------------------------------------------
 
