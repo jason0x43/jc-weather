@@ -53,6 +53,23 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
@@ -77,23 +94,6 @@ WeatherWorkflow().tell('weather', '''{query}''')</string>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>4E09B635-A23C-4B94-99CB-6731C9B0A6E6</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>plusspaces</key>
-				<false/>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
-			<key>uid</key>
-			<string>D83AF686-44AA-46E2-B388-7C9C53F30930</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
@@ -172,9 +172,7 @@ WeatherWorkflow().tell('commands', '''{query}''')</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Version: 20130524.0
-
-This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
+	<string>This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
 	<key>uidata</key>
 	<dict>
 		<key>284CF2A9-0CAD-4D39-9A79-00D1BAE7EDCA</key>

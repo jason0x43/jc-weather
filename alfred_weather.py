@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=UTF-8
 
-import alfred
 import forecastio
 import glocation
 import json
@@ -13,10 +12,9 @@ import urlparse
 import wunderground
 import pytz
 import logging
-from jcalfred import Workflow, Item, JsonFile
 from datetime import date, datetime, timedelta, tzinfo
 from sys import stdout
-
+from jcalfred import Workflow, Item, JsonFile, Menu, Command
 
 LOG = logging.getLogger(__name__)
 
@@ -142,7 +140,6 @@ class WeatherWorkflow(Workflow):
         else:
             return LOCAL_TZ.localize(datetime.now())
 
-
     def _remotize_time(self, dtime=None):
         '''
         Return a time from the local timezone location adjusted for the configured
@@ -200,6 +197,7 @@ class WeatherWorkflow(Workflow):
         self.config['icons'] = self.config.get('icons', DEFAULT_ICONS);
         self.config['time_format'] = self.config.get('time_format', DEFAULT_TIME_FMT);
         self.config['days'] = self.config.get('days', 3);
+        self.config['show_localtime'] = self.config.get('show_localtime', True);
 
         import os.path
         old_config_file = os.path.join(self.data_dir, 'settings.json')
@@ -358,7 +356,6 @@ class WeatherWorkflow(Workflow):
             icon = conditions['icon']
 
         feelslike = self.config.get('feelslike', False)
-        weather['feelslike'] = feelslike
 
         weather['current'] = {
             'weather': conditions['weather'],
@@ -427,8 +424,7 @@ class WeatherWorkflow(Workflow):
         weather['info']['time'] = datetime.strptime(
             self.cache['fio']['forecasts'][location]['requested_at'], TIMESTAMP_FMT)
 
-        feelslike = self.config.get('feelslike', False)
-        weather['feelslike'] = feelslike
+        feelslike = self.config.get('show-feelslike', False)
         temp_kind = 'apparentTemperature' if feelslike else 'temperature'
 
         weather['current'] = {
@@ -470,47 +466,16 @@ class WeatherWorkflow(Workflow):
     # commands ---------------------------------------------------------
 
     def tell_commands(self, query):
-        query = query.strip()
-
-        items = [
-            Item('units', autocomplete='units ',
-                 subtitle=u'Choose your preferred unit system'),
-            Item('location', autocomplete='location ',
-                 subtitle='Set your default location with a ZIP code or city name'),
-            Item('icons', autocomplete='icons ',
-                 subtitle='Choose an icon set'),
-            Item('service', autocomplete='service ',
-                 subtitle='Select your preferred weather provider'),
-            Item('days', autocomplete='days ',
-                 subtitle='Set the number of forecast days to show'),
-            Item('feelslike', autocomplete='feelslike',
-                 subtitle='Toggle whether to show "feels like" temperatures'),
-            Item('format', autocomplete='format ',
-                 subtitle='Select a time format or specify your own'),
-            Item('about', autocomplete='about',
-                 subtitle='Show system information'),
-            Item('config', autocomplete='config',
-                 subtitle='Open the config file'),
-            Item('log', autocomplete='log',
-                 subtitle='Open the debug log'),
+        structure = [
+            Menu('options', 'Change options...'),
+            Command('about', 'Show system information'),
+            Command('config', 'Open the config file'),
+            Command('log', 'Open the debug log'),
         ]
-
-        names = [i.title for i in items]
-
-        if len(query) > 0:
-            for name in names:
-                if query.startswith(name):
-                    query = query[len(name):]
-                    return getattr(self, 'tell_' + name)(query)
-
-            items = self.partial_match_list(query, items,
-                key=lambda t: t.title)
-
-        return items
+        return self.menu(structure, query)
 
     def do_command(self, query):
         cmd, sep, arg = query.partition('|')
-
         if cmd == 'open':
             from subprocess import call
             call(['open', arg])
@@ -518,6 +483,22 @@ class WeatherWorkflow(Workflow):
             getattr(self, 'do_' + cmd)(arg)
         else:
             LOG.error('Invalid command "%s"', cmd)
+
+    # options ----------------------------------------------------------
+
+    def tell_options(self, query):
+        structure = [
+            Menu('units', 'Choose your preferred unit system'),
+            Menu('location', 'Set your default location with a ZIP '
+                 'code or city name'),
+            Menu('icons', 'Choose an icon set'),
+            Menu('service', 'Select your preferred weather provider'),
+            Menu('days', 'Set the number of forecast days to show'),
+            Command('feelslike', 'Toggle whether to show "feels like" '
+                    'temperatures'),
+            Menu('format', 'Select a time format or specify your own')
+        ]
+        return self.menu(structure, query, 'options')
 
     # time format ------------------------------------------------------
 
@@ -531,10 +512,10 @@ class WeatherWorkflow(Workflow):
             except:
                 items.append(Item('Waiting for input...'))
             items.append(Item('Python time format syntax...',
-                                     arg='http://docs.python.org/2/library/'
-                                         'datetime.html#strftime-and-strptime-'
-                                         'behavior',
-                                     valid=True))
+                              arg='http://docs.python.org/2/library/'
+                                  'datetime.html#strftime-and-strptime-'
+                                  'behavior',
+                              valid=True))
         else:
             for fmt in TIME_FORMATS:
                 items.append(Item(now.strftime(fmt), arg='format|' + fmt, valid=True))
@@ -612,13 +593,14 @@ class WeatherWorkflow(Workflow):
 
     def tell_service(self, query):
         items = []
+        query = query.strip()
 
         for svc in SERVICES.keys():
-            items.append(Item(SERVICES[svc]['name'], uid=svc, arg='service|' +svc,
-                                     valid=True))
+            items.append(Item(SERVICES[svc]['name'], uid=svc,
+                              arg='service|' + svc, valid=True))
 
-        if len(query.strip()) > 0:
-            q = query.strip().lower()
+        if len(query) > 0:
+            q = query.lower()
             items = [i for i in items if q in i.title.lower()]
 
         return items
@@ -648,9 +630,9 @@ class WeatherWorkflow(Workflow):
 
         items = [
             Item('US', u'US units (°F, in, mph)', arg='units|us',
-                autocomplete='units US', valid=True),
+                autocomplete='options units US', valid=True),
             Item('SI', u'SI units (°C, cm, kph)', arg='units|si',
-                autocomplete='units SI', valid=True)
+                autocomplete='options units SI', valid=True)
         ]
 
         items = self.partial_match_list(arg, items,
@@ -736,15 +718,17 @@ class WeatherWorkflow(Workflow):
 
         # conditions
         tu = 'F' if self.config['units'] == 'us' else 'C'
-        title = u'Currently in {}: {}'.format(
+        title = u'Currently in {0}: {1}'.format(
             self.config['location']['short_name'],
             weather['current']['weather'].capitalize())
-        subtitle = u'{}°{},  {}% humidity,  local time is {}'.format(
+        subtitle = u'{0}°{1},  {2}% humidity'.format(
             int(round(weather['current']['temp'])), tu,
-            int(round(weather['current']['humidity'])),
-            self._remotize_time().strftime(self.config['time_format']))
-        if weather['feelslike']:
-            subtitle = u'Feels like ' + subtitle
+            int(round(weather['current']['humidity'])))
+        if self.config['show_localtime']:
+            subtitle += ', local time is {0}'.format(
+                self._remotize_time().strftime(self.config['time_format']))
+            if self.config['feelslike']:
+                subtitle = u'Feels like ' + subtitle
 
         icon = self._get_icon(weather['current']['icon'])
         arg = SERVICES[self.config['service']]['lib'].get_forecast_url(location)
@@ -810,18 +794,13 @@ class WeatherWorkflow(Workflow):
     # about ------------------------------------------------------------
 
     def tell_about(self, name, query=''):
-        import re
         import sys
+        import json
 
-        items = []
-
-        readme = alfred.preferences['readme']
-        version = re.match(r'.*\bVersion: (?P<ver>\d[.\d]+)\b.*', readme)
-        version = version.group('ver')
-        version_info = 'Version {}'.format(version)
-        items.append(Item(version_info))
-
-        py_ver = 'Python {:08X}'.format(sys.hexversion)
+        with open('update.json', 'rt') as uf:
+            data = json.load(uf)
+        items = [Item('Version: {0}'.format(data['version']))]
+        py_ver = 'Python: {:08X}'.format(sys.hexversion)
         items.append(Item(py_ver))
 
         return items

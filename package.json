@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "requests",
-  	"pytz"
+  	"pytz",
+	"jcalfred"
   ]
 }
