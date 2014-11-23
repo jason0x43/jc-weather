@@ -287,9 +287,8 @@ class WeatherWorkflow(Workflow):
             icon = '{}.png'.format('error')
         return icon
 
-    def _get_today_word(self, sunrise, sunset):
+    def _get_today_word(self, sunset):
         # the 'today' word is 'tonight' if it's less than 2 hours before sunset
-
         current_time = self._localize_time()
         try:
             if (sunset - current_time).seconds < 7200:
@@ -303,6 +302,22 @@ class WeatherWorkflow(Workflow):
         '''Get the current date in the target location'''
         target_now = self._remotize_time(self._localize_time())
         return target_now.date()
+
+    def _get_weather(self, location):
+        self._validate_settings()
+
+        location = location.strip()
+
+        if len(location) > 0:
+            self._update_location(location)
+
+        if self.config['service'] == 'wund':
+            weather = self._get_wund_weather()
+        else:
+            weather = self._get_fio_weather()
+
+        return weather
+
 
     def _get_wund_weather(self):
         LOG.debug('getting weather from Weather Underground')
@@ -350,7 +365,7 @@ class WeatherWorkflow(Workflow):
         if 'moon_phase' in data:
             def to_time(time_dict):
                 hour = int(time_dict['hour'])
-                minute = int(time_dict['hour'])
+                minute = int(time_dict['minute'])
                 dt = datetime.now().replace(hour=hour, minute=minute)
                 return self._localize_time(dt)
 
@@ -391,7 +406,7 @@ class WeatherWorkflow(Workflow):
                 'conditions': day['conditions'],
                 'precip': day['pop'],
                 'icon': day['icon'],
-                'date': fdate
+                'date': fdate,
             }
 
             if self.config['units'] == 'us':
@@ -405,6 +420,9 @@ class WeatherWorkflow(Workflow):
 
         forecast = [get_day_info(d) for d in days]
         weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
+        
+        weather['forecast'][0]['sunrise'] = self._remotize_time(weather['info']['sunrise'])
+        weather['forecast'][0]['sunset'] = self._remotize_time(weather['info']['sunset'])
         return weather
 
     def _get_fio_weather(self):
@@ -468,6 +486,11 @@ class WeatherWorkflow(Workflow):
                 'icon': FIO_TO_WUND.get(day['icon'], day['icon']),
                 'temp_hi': int(round(day['temperatureMax'])),
                 'temp_lo': int(round(day['temperatureMin'])),
+                'sunrise': self._remotize_time(datetime.fromtimestamp(
+                int(day['sunriseTime']))),
+                'sunset': self._remotize_time(datetime.fromtimestamp(
+                int(today['sunsetTime']))),
+
             }
             if 'precipProbability' in day:
                 info['precip'] = 100 * day['precipProbability']
@@ -477,6 +500,47 @@ class WeatherWorkflow(Workflow):
         forecast = [get_day_info(d) for d in days]
         weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
         return weather
+
+    def _get_copyright_info(self, weather):
+        arg = SERVICES[self.config['service']]['url']
+        time = weather['info']['time'].strftime(self.config['time_format'])
+        return Item(LINE, u'Fetched from {} at {}'.format(
+                                 SERVICES[self.config['service']]['name'], time),
+                                 icon="blank.png", arg=arg, valid=True)
+
+
+
+    def _show_alert_information(self, weather):
+        items = []
+        if 'alerts' in weather:
+            for alert in weather['alerts']:
+                item = Item(alert['description'], icon='error.png')
+                if alert['expires']:
+                    item.subtitle = 'Expires at {}'.format(alert['expires'].strftime(
+                        self.config['time_format']))
+                if 'uri' in alert:
+                    item.arg = clean_str(alert['uri'])
+                    item.valid = True
+                items.append(item)
+        return items
+
+    def _get_day_desc(self, date, today_word = "Today"):
+        today = self._get_current_date()
+        offset = date.today() - today
+
+        if date == today:
+            day_desc = today_word
+        elif date.day - today.day == 1:
+            day_desc = 'Tomorrow'
+        else:
+            day_desc = (date + offset).strftime('%A')
+        return day_desc
+
+    def _get_days(self, weather):
+        days = weather['forecast']
+        if len(days) > self.config['days']:
+            days = days[:self.config['days']]
+        return days
 
     # commands ---------------------------------------------------------
 
@@ -707,32 +771,11 @@ class WeatherWorkflow(Workflow):
 
     def tell_weather(self, location):
         '''Tell the current conditions and forecast for a location'''
-        self._validate_settings()
 
         location = location.strip()
-
-        if len(location) > 0:
-            self._update_location(location)
-
-        if self.config['service'] == 'wund':
-            weather = self._get_wund_weather()
-        else:
-            weather = self._get_fio_weather()
-
-        items = []
-
-        # alerts
-        if 'alerts' in weather:
-            for alert in weather['alerts']:
-                item = Item(alert['description'], icon='error.png')
-                if alert['expires']:
-                    item.subtitle = 'Expires at {}'.format(
-                        alert['expires'].strftime(
-                            self.config['time_format']))
-                if 'uri' in alert:
-                    item.arg = clean_str(alert['uri'])
-                    item.valid = True
-                items.append(item)
+        weather = self._get_weather(location)
+   
+        items = self._show_alert_information(weather)
 
         # conditions
         tu = 'F' if self.config['units'] == 'us' else 'C'
@@ -758,23 +801,13 @@ class WeatherWorkflow(Workflow):
                                   self.config['location']['longitude'])
 
         # forecast
-        days = weather['forecast']
-        if len(days) > self.config['days']:
-            days = days[:self.config['days']]
+        days = self._get_days(weather)
 
-        today = self._get_current_date()
-        offset = date.today() - today
-        sunrise = weather['info']['sunrise']
         sunset = weather['info']['sunset']
+        today_word = self._get_today_word(sunset).capitalize()
 
         for day in days:
-            if day['date'] == today:
-                day_desc = self._get_today_word(sunrise, sunset).capitalize()
-            elif day['date'].day - today.day == 1:
-                day_desc = 'Tomorrow'
-            else:
-                day_desc = (day['date'] + offset).strftime('%A')
-
+            day_desc = self._get_day_desc(day['date'], today_word)
             title = u'{}: {}'.format(day_desc, day['conditions'].capitalize())
             subtitle = u'High: {}°{},  Low: {}°{}'.format(
                 day['temp_hi'], tu, day['temp_lo'], tu)
@@ -786,16 +819,11 @@ class WeatherWorkflow(Workflow):
             items.append(Item(title, subtitle, icon=icon, arg=clean_str(arg),
                               valid=True))
 
-        arg = SERVICES[self.config['service']]['url']
-        time = weather['info']['time'].strftime(self.config['time_format'])
-
-        items.append(Item(LINE, u'Fetched from {} at {}'.format(
-                          SERVICES[self.config['service']]['name'], time),
-                          icon='', arg=arg, valid=True))
+        items.append(self._get_copyright_info(weather))
         return items
 
     # feelslike --------------------------------------------------------
-
+   
     def tell_feelslike(self, query):
         feelslike = self.config.get('feelslike', False)
         return [Item('Toggle whether to show "feels like" temperatures',

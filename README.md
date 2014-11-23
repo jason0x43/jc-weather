@@ -1,9 +1,7 @@
 [Alfred 2][alfred] Workflow for showing weather forecasts
 =========================================================
 
-<p align="center">
-<img alt="Screenshot" src="https://dl.dropbox.com/s/ivyyc4cnbi6oz0d/jc-weather_screenshot.png" />
-</p>
+![screenshot-weather](screenshots/screenshot_weather.png?raw=true)
 
 <p align="center">
   <a href="https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow"><img src="http://i.imgur.com/E8I5TfU.png" alt="Download"></a>
@@ -45,6 +43,14 @@ reasonable level while you're playing around with the workflow. The free tier
 of Weather Underground API access is throttled to 10 requests per minute, and
 it's surprisingly easy to hit that limit (you know, when you're spastically
 querying city after city because using an Alfred workflow is just so cool).
+
+###Sunrise and Sunset
+Using `sun [location]` to show sunrise and sunset time for the next few days.
+
+![screenshot-sun](screenshots/screenshot_sun.png?raw=true)
+
+
+* [Weather Underground][wund] only provides sunrise/sunset time of current day.
 
 Installation
 ------------

@@ -1,4 +1,6 @@
 *.pyc
 debug.log*
 requests/
+jcalfred/
+*.swp
 pytz/

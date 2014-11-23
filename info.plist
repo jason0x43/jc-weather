@@ -170,9 +170,41 @@ WeatherWorkflow().tell('commands', '''{query}''')</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>sun</string>
+				<key>runningsubtext</key>
+				<string>Loading...</string>
+				<key>script</key>
+				<string>from sun_phase import SunPhaseWorkflow
+SunPhaseWorkflow().tell('sun', '''{query}''')</string>
+				<key>subtext</key>
+				<string>Show sunrise and sunset time (location optional)</string>
+				<key>title</key>
+				<string>sun</string>
+				<key>type</key>
+				<integer>3</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>A7ABDFC6-BA42-4012-8D5F-8E7EB4F8A060</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
-	<string>This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
+	<string>Version: 20141124.0
+
+This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
 	<key>uidata</key>
 	<dict>
 		<key>284CF2A9-0CAD-4D39-9A79-00D1BAE7EDCA</key>
@@ -189,6 +221,11 @@ WeatherWorkflow().tell('commands', '''{query}''')</string>
 		<dict>
 			<key>ypos</key>
 			<real>30</real>
+		</dict>
+		<key>A7ABDFC6-BA42-4012-8D5F-8E7EB4F8A060</key>
+		<dict>
+			<key>ypos</key>
+			<real>270</real>
 		</dict>
 		<key>D83AF686-44AA-46E2-B388-7C9C53F30930</key>
 		<dict>
