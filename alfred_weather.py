@@ -318,7 +318,6 @@ class WeatherWorkflow(Workflow):
 
         return weather
 
-
     def _get_wund_weather(self):
         LOG.debug('getting weather from Weather Underground')
         location = '{},{}'.format(self.config['location']['latitude'],
@@ -420,9 +419,11 @@ class WeatherWorkflow(Workflow):
 
         forecast = [get_day_info(d) for d in days]
         weather['forecast'] = sorted(forecast, key=lambda d: d['date'])
-        
-        weather['forecast'][0]['sunrise'] = self._remotize_time(weather['info']['sunrise'])
-        weather['forecast'][0]['sunset'] = self._remotize_time(weather['info']['sunset'])
+
+        weather['forecast'][0]['sunrise'] = self._remotize_time(
+            weather['info']['sunrise'])
+        weather['forecast'][0]['sunset'] = self._remotize_time(
+            weather['info']['sunset'])
         return weather
 
     def _get_fio_weather(self):
@@ -487,9 +488,9 @@ class WeatherWorkflow(Workflow):
                 'temp_hi': int(round(day['temperatureMax'])),
                 'temp_lo': int(round(day['temperatureMin'])),
                 'sunrise': self._remotize_time(datetime.fromtimestamp(
-                int(day['sunriseTime']))),
+                    int(day['sunriseTime']))),
                 'sunset': self._remotize_time(datetime.fromtimestamp(
-                int(today['sunsetTime']))),
+                    int(today['sunsetTime']))),
 
             }
             if 'precipProbability' in day:
@@ -505,10 +506,8 @@ class WeatherWorkflow(Workflow):
         arg = SERVICES[self.config['service']]['url']
         time = weather['info']['time'].strftime(self.config['time_format'])
         return Item(LINE, u'Fetched from {} at {}'.format(
-                                 SERVICES[self.config['service']]['name'], time),
-                                 icon="blank.png", arg=arg, valid=True)
-
-
+            SERVICES[self.config['service']]['name'], time),
+            icon='blank.png', arg=arg, valid=True)
 
     def _show_alert_information(self, weather):
         items = []
@@ -516,15 +515,15 @@ class WeatherWorkflow(Workflow):
             for alert in weather['alerts']:
                 item = Item(alert['description'], icon='error.png')
                 if alert['expires']:
-                    item.subtitle = 'Expires at {}'.format(alert['expires'].strftime(
-                        self.config['time_format']))
+                    item.subtitle = 'Expires at {}'.format(
+                        alert['expires'].strftime(self.config['time_format']))
                 if 'uri' in alert:
                     item.arg = clean_str(alert['uri'])
                     item.valid = True
                 items.append(item)
         return items
 
-    def _get_day_desc(self, date, today_word = "Today"):
+    def _get_day_desc(self, date, today_word='Today'):
         today = self._get_current_date()
         offset = date.today() - today
 
@@ -544,7 +543,7 @@ class WeatherWorkflow(Workflow):
 
     # commands ---------------------------------------------------------
 
-    def tell_commands(self, query):
+    def tell_commands(self, query, prefix=None):
         structure = [
             Menu('options', 'Change options...'),
             Command('about', 'Show system information'),
@@ -565,7 +564,7 @@ class WeatherWorkflow(Workflow):
 
     # options ----------------------------------------------------------
 
-    def tell_options(self, query):
+    def tell_options(self, query, prefix=None):
         structure = [
             Menu('units', 'Choose your preferred unit system'),
             Menu('location', 'Set your default location with a ZIP '
@@ -581,7 +580,7 @@ class WeatherWorkflow(Workflow):
 
     # time format ------------------------------------------------------
 
-    def tell_format(self, fmt):
+    def tell_format(self, fmt, prefix=None):
         items = []
         now = datetime.now()
 
@@ -614,7 +613,7 @@ class WeatherWorkflow(Workflow):
 
     # icons ------------------------------------------------------------
 
-    def tell_icons(self, ignored):
+    def tell_icons(self, ignored, prefix=None):
         items = []
         sets = [f for f in os.listdir('icons') if not f.startswith('.')]
         for iset in sets:
@@ -640,7 +639,7 @@ class WeatherWorkflow(Workflow):
 
     # days -------------------------------------------------------------
 
-    def tell_days(self, days):
+    def tell_days(self, days, prefix=None):
         if len(days) == 0:
             length = '{} day'.format(self.config['days'])
             if self.config['days'] != 1:
@@ -673,7 +672,7 @@ class WeatherWorkflow(Workflow):
 
     # service ----------------------------------------------------------
 
-    def tell_service(self, query):
+    def tell_service(self, query, prefix=None):
         items = []
         query = query.strip()
 
@@ -706,7 +705,7 @@ class WeatherWorkflow(Workflow):
 
     # units ------------------------------------------------------------
 
-    def tell_units(self, arg):
+    def tell_units(self, arg, prefix=None):
         arg = arg.strip()
 
         items = [
@@ -729,7 +728,7 @@ class WeatherWorkflow(Workflow):
 
     # location ---------------------------------------------------------
 
-    def tell_location(self, query):
+    def tell_location(self, query, prefix=None):
         items = []
         query = query.strip()
 
@@ -769,12 +768,12 @@ class WeatherWorkflow(Workflow):
 
     # weather ----------------------------------------------------------
 
-    def tell_weather(self, location):
+    def tell_weather(self, location, prefix=None):
         '''Tell the current conditions and forecast for a location'''
 
         location = location.strip()
         weather = self._get_weather(location)
-   
+
         items = self._show_alert_information(weather)
 
         # conditions
@@ -823,8 +822,8 @@ class WeatherWorkflow(Workflow):
         return items
 
     # feelslike --------------------------------------------------------
-   
-    def tell_feelslike(self, query):
+
+    def tell_feelslike(self, query, prefix=None):
         feelslike = self.config.get('feelslike', False)
         return [Item('Toggle whether to show "feels like" temperatures',
                      subtitle='Current value is ' + str(feelslike).lower(),
@@ -840,7 +839,7 @@ class WeatherWorkflow(Workflow):
 
     # about ------------------------------------------------------------
 
-    def tell_about(self, name, query=''):
+    def tell_about(self, name, query='', prefix=None):
         import sys
         import json
 
@@ -854,13 +853,13 @@ class WeatherWorkflow(Workflow):
 
     # log --------------------------------------------------------------
 
-    def tell_log(self, query):
+    def tell_log(self, query, prefix=None):
         return [Item('Open the debug log', arg='open|' + self.log_file,
                      valid=True)]
 
     # config -----------------------------------------------------------
 
-    def tell_config(self, query):
+    def tell_config(self, query, prefix=None):
         return (
             [Item(
              'Open the config file',

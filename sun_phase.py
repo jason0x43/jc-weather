@@ -28,20 +28,17 @@ class SunPhaseWorkflow(WeatherWorkflow):
         """Tell sunrise and sunset time for today and following few days"""
         location = location.strip()
         weather = self._get_weather(location)
+        items = []
 
-        items = self._show_alert_information(weather)
-
-        days = self._get_days(weather)
-
-        for day in days:
+        for day in self._get_days(weather):
             day_desc = self._get_day_desc(day['date'])
-
             content = self._sun_phase_description(day.get('sunrise'), day.get('sunset'))
 
             if content == "":
                 continue
 
             items.append(self._create_item(day_desc, content))
+
         items.append(self._get_copyright_info(weather))
         return items
 

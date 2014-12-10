@@ -9,8 +9,8 @@
 
 This workflow lets you access weather forecasts from [forecast.io][fio] and the
 [Weather Underground][wund].  There are several setup commands, accessible as
-`wset <command>`, and a single `weather` command to display current conditions
-and a forecast.
+`wset <command>`, a single `weather` command to display current conditions
+and a forecast, and a `sun` command that will show sunrise and sunset times.
 
 The setup commands are:
 
@@ -38,19 +38,18 @@ location. It can also be given a location, such as a ZIP code or city name. It
 (and the `wset location` command) uses the Weather Underground autocomplete API
 to find possible locations based on what you enter.
 
+The `sun` command, with no argument, will show sunrise and sunset times for the
+next few day in the default location. Adding a location with `sun [location]`
+will show times for the given location. Note that [Weather Underground][wund]
+only provides sunrise and sunset times for the current day.
+
+![screenshot-sun](screenshots/screenshot_sun.png?raw=true)
+
 Data for each city you query is cached for 5 minutes to keep requests down to a
 reasonable level while you're playing around with the workflow. The free tier
 of Weather Underground API access is throttled to 10 requests per minute, and
 it's surprisingly easy to hit that limit (you know, when you're spastically
 querying city after city because using an Alfred workflow is just so cool).
-
-###Sunrise and Sunset
-Using `sun [location]` to show sunrise and sunset time for the next few days.
-
-![screenshot-sun](screenshots/screenshot_sun.png?raw=true)
-
-
-* [Weather Underground][wund] only provides sunrise/sunset time of current day.
 
 Installation
 ------------
@@ -87,6 +86,8 @@ The package includes a number of icon sets from the Weather Underground and
 from [weathericonsets.com][icons] (I'm not up to drawing weather icons yet).
 Each set includes an `info.json` file that gives a short description and
 provides a source URL for the icon set.
+
+The `sun` command was implemented by [@owenwater][owenwater].
 
 [pkg]: https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow
 [img]: https://dl.dropbox.com/s/ivyyc4cnbi6oz0d/jc-weather_screenshot.png

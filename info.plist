@@ -202,7 +202,7 @@ SunPhaseWorkflow().tell('sun', '''{query}''')</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Version: 20141124.0
+	<string>Version: 20141209.0
 
 This workflow is based on David Ferguson's Weather workflow. It includes icon sets from the Weather Underground and from weathericonsets.com.</string>
 	<key>uidata</key>
