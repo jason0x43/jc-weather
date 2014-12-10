@@ -13,7 +13,6 @@ import wunderground
 import pytz
 import logging
 from datetime import date, datetime, timedelta, tzinfo
-from sys import stdout
 from jcalfred import Workflow, Item, JsonFile, Menu, Command
 
 LOG = logging.getLogger(__name__)
@@ -61,7 +60,9 @@ FIO_TO_WUND = {
 
 
 class LocalTimezone(tzinfo):
+
     '''A tzinfo object for the system timezone'''
+
     def __init__(self):
         self.stdoffset = timedelta(seconds=-time.timezone)
         if time.daylight:
@@ -100,6 +101,7 @@ class LocalTimezone(tzinfo):
 
 
 class SetupError(Exception):
+
     def __init__(self, title, subtitle):
         super(SetupError, self).__init__(title)
         self.title = title
@@ -114,6 +116,7 @@ LOCAL_TZ = LocalTimezone()
 
 
 class WeatherWorkflow(Workflow):
+
     def __init__(self):
         super(WeatherWorkflow, self).__init__()
         self.cache_file = os.path.join(self.cache_dir, 'data.json')
@@ -131,7 +134,8 @@ class WeatherWorkflow(Workflow):
         Return a datetime from the configured location adjusted for the local
         timezone.
 
-        If no time is specified, return a localized instance of the current time.
+        If no time is specified, return a localized instance of the current
+        time.
         '''
         if dtime:
             remote_tz = pytz.timezone(self.config['location']['timezone'])
@@ -142,8 +146,8 @@ class WeatherWorkflow(Workflow):
 
     def _remotize_time(self, dtime=None):
         '''
-        Return a time from the local timezone location adjusted for the configured
-        location.
+        Return a time from the local timezone location adjusted for the
+        configured location.
 
         If no time is specified, return an instance of the current time in the
         remote location's timezone.
@@ -183,7 +187,8 @@ class WeatherWorkflow(Workflow):
 
         if 'timezone' not in self.config['location']:
             location = self.config['location']
-            tz = glocation.timezone(location['latitude'], location['longitude'])
+            tz = glocation.timezone(location['latitude'],
+                                    location['longitude'])
             self.config['location']['timezone'] = tz['timeZoneId']
 
     def _load_settings(self):
@@ -193,15 +198,17 @@ class WeatherWorkflow(Workflow):
             self._migrate_settings()
 
         self.config['version'] = SETTINGS_VERSION
-        self.config['units'] = self.config.get('units', DEFAULT_UNITS);
-        self.config['icons'] = self.config.get('icons', DEFAULT_ICONS);
-        self.config['time_format'] = self.config.get('time_format', DEFAULT_TIME_FMT);
-        self.config['days'] = self.config.get('days', 3);
-        self.config['show_localtime'] = self.config.get('show_localtime', True);
+        self.config['units'] = self.config.get('units', DEFAULT_UNITS)
+        self.config['icons'] = self.config.get('icons', DEFAULT_ICONS)
+        self.config['time_format'] = self.config.get('time_format',
+                                                     DEFAULT_TIME_FMT)
+        self.config['days'] = self.config.get('days', 3)
+        self.config['show_localtime'] = self.config.get('show_localtime', True)
 
         import os.path
         old_config_file = os.path.join(self.data_dir, 'settings.json')
-        if (os.path.exists(old_config_file) and not self.config.get('migrated')):
+        if (os.path.exists(old_config_file) and not
+                self.config.get('migrated')):
             old_config = JsonFile(old_config_file)
             for key, value in old_config.items():
                 self.config[key] = value
@@ -219,10 +226,10 @@ class WeatherWorkflow(Workflow):
                                  'Use the "wset service" command.')
 
             if 'location' not in self.config:
-                raise SetupError('Missing default location', 'You must specify a '
-                                 'default location with the "wset location" '
-                                 'command')
-        except SetupError, e:
+                raise SetupError('Missing default location',
+                                 'You must specify a default location with '
+                                 'the "wset location" command')
+        except SetupError as e:
             self.show_message('Error', str(e))
             raise
 
@@ -248,7 +255,8 @@ class WeatherWorkflow(Workflow):
             self.cache[service] = {'forecasts': {}}
 
         if location in self.cache[service]['forecasts']:
-            last_check = self.cache[service]['forecasts'][location]['requested_at']
+            last_check = self.cache[service]['forecasts'][
+                location]['requested_at']
             last_check = datetime.strptime(last_check, TIMESTAMP_FMT)
             if (datetime.now() - last_check).seconds < 300:
                 data = self.cache[service]['forecasts'][location]['data']
@@ -308,9 +316,10 @@ class WeatherWorkflow(Workflow):
             self._save_cached_data('wund', location, data)
 
         def parse_alert(alert):
-            data = { 'description': alert['description'] }
+            data = {'description': alert['description']}
             try:
-                data['expires'] = datetime.fromtimestamp(int(alert['expires_epoch']))
+                data['expires'] = datetime.fromtimestamp(
+                    int(alert['expires_epoch']))
             except ValueError:
                 data['expires'] = None
                 LOG.warn('invalid expiration time: %s', alert['expires_epoch'])
@@ -322,8 +331,9 @@ class WeatherWorkflow(Workflow):
                     data['uri'] = '{}/US/{}/{}.html'.format(
                         SERVICES['wund']['url'], zone['state'], zone['ZONE'])
                 except:
-                    location = '{},{}'.format(self.config['location']['latitude'],
-                                              self.config['location']['longitude'])
+                    location = '{},{}'.format(
+                        self.config['location']['latitude'],
+                        self.config['location']['longitude'])
                     data['uri'] = wunderground.get_forecast_url(location)
             return data
 
@@ -334,7 +344,8 @@ class WeatherWorkflow(Workflow):
 
         conditions = data['current_observation']
         weather['info']['time'] = datetime.strptime(
-            self.cache['wund']['forecasts'][location]['requested_at'], TIMESTAMP_FMT)
+            self.cache['wund']['forecasts'][location]['requested_at'],
+            TIMESTAMP_FMT)
 
         if 'moon_phase' in data:
             def to_time(time_dict):
@@ -422,7 +433,8 @@ class WeatherWorkflow(Workflow):
 
         conditions = data['currently']
         weather['info']['time'] = datetime.strptime(
-            self.cache['fio']['forecasts'][location]['requested_at'], TIMESTAMP_FMT)
+            self.cache['fio']['forecasts'][location]['requested_at'],
+            TIMESTAMP_FMT)
 
         feelslike = self.config.get('show-feelslike', False)
         temp_kind = 'apparentTemperature' if feelslike else 'temperature'
@@ -431,20 +443,23 @@ class WeatherWorkflow(Workflow):
             'weather': conditions['summary'],
             'icon': FIO_TO_WUND.get(conditions['icon'], conditions['icon']),
             'humidity': conditions['humidity'] * 100,
-            'temp':  float(conditions[temp_kind])
+            'temp': float(conditions[temp_kind])
         }
 
         days = data['daily']['data']
 
         if len(days) > 0:
             today = days[0]
-            weather['info']['sunrise'] = self._localize_time(datetime.fromtimestamp(
-                int(today['sunriseTime'])))
-            weather['info']['sunset'] = self._localize_time(datetime.fromtimestamp(
-                int(today['sunsetTime'])))
+            weather['info']['sunrise'] = \
+                self._localize_time(datetime.fromtimestamp(
+                    int(today['sunriseTime'])))
+            weather['info']['sunset'] = \
+                self._localize_time(datetime.fromtimestamp(
+                    int(today['sunsetTime'])))
 
         def get_day_info(day):
-            fdate = self._remotize_time(datetime.fromtimestamp(day['time'])).date()
+            fdate = self._remotize_time(
+                datetime.fromtimestamp(day['time'])).date()
             if day['summary'][-1] == '.':
                 day['summary'] = day['summary'][:-1]
             info = {
@@ -508,7 +523,8 @@ class WeatherWorkflow(Workflow):
 
         if fmt:
             try:
-                items.append(Item(now.strftime(fmt), arg='format|' + fmt, valid=True))
+                items.append(Item(now.strftime(fmt), arg='format|' + fmt,
+                                  valid=True))
             except:
                 items.append(Item('Waiting for input...'))
             items.append(Item('Python time format syntax...',
@@ -518,7 +534,8 @@ class WeatherWorkflow(Workflow):
                               valid=True))
         else:
             for fmt in TIME_FORMATS:
-                items.append(Item(now.strftime(fmt), arg='format|' + fmt, valid=True))
+                items.append(Item(now.strftime(fmt), arg='format|' + fmt,
+                                  valid=True))
 
         return items
 
@@ -540,7 +557,8 @@ class WeatherWorkflow(Workflow):
             uid = 'icons-{}'.format(iset)
             icon = 'icons/{}/{}.png'.format(iset, EXAMPLE_ICON)
             title = iset.capitalize()
-            item = Item(title, uid=uid, icon=icon, arg=u'icons|' + iset, valid=True)
+            item = Item(title, uid=uid, icon=icon, arg=u'icons|' + iset,
+                        valid=True)
 
             info_file = os.path.join('icons', iset, 'info.json')
             if os.path.exists(info_file):
@@ -565,7 +583,7 @@ class WeatherWorkflow(Workflow):
                 length += 's'
             return [Item('Enter the number of forecast days to show...',
                          subtitle='Currently showing {} of forecast'.format(
-                         length))]
+                             length))]
         else:
             days = int(days)
 
@@ -575,8 +593,8 @@ class WeatherWorkflow(Workflow):
             length = '{} day'.format(days)
             if days != 1:
                 length += 's'
-            return [Item('Show {} of forecast'.format(length), arg='days|{0}'.format(days),
-                                valid=True)]
+            return [Item('Show {} of forecast'.format(length),
+                         arg='days|{0}'.format(days), valid=True)]
 
     def do_days(self, days):
         days = int(days)
@@ -610,15 +628,14 @@ class WeatherWorkflow(Workflow):
 
         key_name = 'key.{}'.format(svc)
         key = self.config.get(key_name)
-        answer = alfred.get_from_user(
+        button, key = self.get_from_user(
             'Update API key', u'Enter your API key for {}'.format(
-            SERVICES[svc]['name']), value=key, extra_buttons='Get key')
+                SERVICES[svc]['name']), value=key, extra_buttons='Get key')
 
-        button, sep, key = answer.partition('|')
         if button == 'Ok':
             self.config[key_name] = key
             self.puts(u'Using {} for weather data with key {}'.format(
-                 SERVICES[svc]['name'], key))
+                      SERVICES[svc]['name'], key))
         elif button == 'Get key':
             import webbrowser
             webbrowser.open(SERVICES[svc]['getkey'])
@@ -630,13 +647,12 @@ class WeatherWorkflow(Workflow):
 
         items = [
             Item('US', u'US units (°F, in, mph)', arg='units|us',
-                autocomplete='options units US', valid=True),
+                 autocomplete='options units US', valid=True),
             Item('SI', u'SI units (°C, cm, kph)', arg='units|si',
-                autocomplete='options units SI', valid=True)
+                 autocomplete='options units SI', valid=True)
         ]
 
-        items = self.partial_match_list(arg, items,
-            key=lambda t: t.title)
+        items = self.partial_match_list(arg, items, key=lambda t: t.title)
 
         if len(items) == 0:
             items.append(Item('Invalid units'))
@@ -656,7 +672,8 @@ class WeatherWorkflow(Workflow):
         if len(query) > 0:
             results = wunderground.autocomplete(query)
             for result in [r for r in results if r['type'] == 'city']:
-                items.append(Item(result['name'], arg='location|' + result['name'],
+                items.append(Item(result['name'],
+                                  arg='location|' + result['name'],
                                   valid=True))
         else:
             items.append(Item('Enter a location...'))
@@ -709,8 +726,9 @@ class WeatherWorkflow(Workflow):
             for alert in weather['alerts']:
                 item = Item(alert['description'], icon='error.png')
                 if alert['expires']:
-                    item.subtitle = 'Expires at {}'.format(alert['expires'].strftime(
-                        self.config['time_format']))
+                    item.subtitle = 'Expires at {}'.format(
+                        alert['expires'].strftime(
+                            self.config['time_format']))
                 if 'uri' in alert:
                     item.arg = clean_str(alert['uri'])
                     item.valid = True
@@ -731,9 +749,10 @@ class WeatherWorkflow(Workflow):
                 subtitle = u'Feels like ' + subtitle
 
         icon = self._get_icon(weather['current']['icon'])
-        arg = SERVICES[self.config['service']]['lib'].get_forecast_url(location)
-        items.append(Item(title, subtitle, icon=icon, valid=True,
-                     arg=clean_str(arg)))
+        arg = SERVICES[self.config['service']]['lib'].get_forecast_url(
+            location)
+        items.append(
+            Item(title, subtitle, icon=icon, valid=True, arg=clean_str(arg)))
 
         location = '{},{}'.format(self.config['location']['latitude'],
                                   self.config['location']['longitude'])
@@ -765,14 +784,14 @@ class WeatherWorkflow(Workflow):
                 location, day['date'])
             icon = self._get_icon(day['icon'])
             items.append(Item(title, subtitle, icon=icon, arg=clean_str(arg),
-                                     valid=True))
+                              valid=True))
 
         arg = SERVICES[self.config['service']]['url']
         time = weather['info']['time'].strftime(self.config['time_format'])
 
         items.append(Item(LINE, u'Fetched from {} at {}'.format(
-                                 SERVICES[self.config['service']]['name'], time),
-                                 icon='', arg=arg, valid=True))
+                          SERVICES[self.config['service']]['name'], time),
+                          icon='', arg=arg, valid=True))
         return items
 
     # feelslike --------------------------------------------------------
@@ -808,12 +827,18 @@ class WeatherWorkflow(Workflow):
     # log --------------------------------------------------------------
 
     def tell_log(self, query):
-        return [Item('Open the debug log', arg='open|' + self.log_file, valid=True)]
+        return [Item('Open the debug log', arg='open|' + self.log_file,
+                     valid=True)]
 
     # config -----------------------------------------------------------
 
     def tell_config(self, query):
-        return [Item('Open the config file', arg='open|' + self.config_file, valid=True)]
+        return (
+            [Item(
+             'Open the config file',
+             arg='open|' + self.config_file,
+             valid=True)]
+        )
 
 
 if __name__ == '__main__':
