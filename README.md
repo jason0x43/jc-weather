@@ -3,10 +3,6 @@
 
 ![screenshot-weather](screenshots/screenshot_weather.png?raw=true)
 
-<p align="center">
-  <a href="https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow"><img src="http://i.imgur.com/E8I5TfU.png" alt="Download"></a>
-</p>
-
 This workflow lets you access weather forecasts from [forecast.io][fio] and the
 [Weather Underground][wund].  There are several setup commands, accessible as
 `wset <command>`, a single `weather` command to display current conditions
@@ -54,9 +50,9 @@ querying city after city because using an Alfred workflow is just so cool).
 Installation
 ------------
 
-The easiest way to install the workflow is to download the
-[prepackaged workflow][pkg].  Double-click on the downloaded file, or drag
-it into the Alfred Workflows window, and Alfred should install it.
+The easiest way to install the workflow is to download the [current release][].
+Double-click on the downloaded file, or drag it into the Alfred Workflows
+window, and Alfred should install it.
 
 I'm using `weather` as the main command, which is the same as the built-in
 weather web search in Alfred. The web search can be disabled in Features &rarr;
@@ -89,8 +85,8 @@ provides a source URL for the icon set.
 
 The `sun` command was implemented by [@owenwater][owenwater].
 
-[pkg]: https://dl.dropbox.com/s/hug7tz83dk5wsa5/jc-weather.alfredworkflow
-[img]: https://dl.dropbox.com/s/ivyyc4cnbi6oz0d/jc-weather_screenshot.png
+[pkg]: https://github.com/jason0x43/jc-weather/releases/download/v20141209.0/jc-weather.alfredworkflow
+[img]: https://raw.githubusercontent.com/jason0x43/jc-weather/master/screenshots/screenshot_weather.png
 [alfred]: http://www.alfredapp.com
 [icons]: http://www.weathericonsets.com
 [wund]: http://www.weatherunderground.com
