@@ -1,5 +1,5 @@
 {
-  "version": 20141209.0, 
-  "description": "Add a 'sun' command", 
-  "download_url": "https://github.com/jason0x43/jc-weather/releases/download/v20141209.0/jc-weather.alfredworkflow"
+  "version": 20150128.0, 
+  "description": "Fix service selection bug", 
+  "download_url": "https://github.com/jason0x43/jc-weather/releases/download/v20150128.0/jc-weather.alfredworkflow"
 }
