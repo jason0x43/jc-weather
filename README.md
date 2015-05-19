@@ -50,7 +50,7 @@ querying city after city because using an Alfred workflow is just so cool).
 Installation
 ------------
 
-The easiest way to install the workflow is to download the [current release][].
+The easiest way to install the workflow is to download the [current release][pkg].
 Double-click on the downloaded file, or drag it into the Alfred Workflows
 window, and Alfred should install it.
 
@@ -85,7 +85,7 @@ provides a source URL for the icon set.
 
 The `sun` command was implemented by [@owenwater][owenwater].
 
-[pkg]: https://github.com/jason0x43/jc-weather/releases/download/v20141209.0/jc-weather.alfredworkflow
+[pkg]: https://github.com/jason0x43/jc-weather/releases/download/v20150128.0/jc-weather.alfredworkflow
 [img]: https://raw.githubusercontent.com/jason0x43/jc-weather/master/screenshots/screenshot_weather.png
 [alfred]: http://www.alfredapp.com
 [icons]: http://www.weathericonsets.com
