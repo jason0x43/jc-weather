@@ -1,6 +1,9 @@
 [Alfred 2][alfred] Workflow for showing weather forecasts
 =========================================================
 
+*Notice:* This workflow is no longer maintained. The current version is
+[here](https://github.com/jason0x43/alfred-weather).
+
 ![screenshot-weather](screenshots/screenshot_weather.png?raw=true)
 
 This workflow lets you access weather forecasts from [forecast.io][fio] and the
